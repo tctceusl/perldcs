@@ -1,0 +1,621 @@
+/////ceaser////
+
+
+
+public class CaesarCipher {
+
+    public static String encrypt(String plaintext, int shift) {
+        StringBuilder ciphertext = new StringBuilder();
+
+        for (int i = 0; i < plaintext.length(); i++) {
+            char ch = plaintext.charAt(i);
+
+            if (Character.isLetter(ch)) {
+                char base = Character.isLowerCase(ch) ? 'a' : 'A';
+                ch = (char) ((ch - base + shift) % 26 + base);
+            }
+
+            ciphertext.append(ch);
+        }
+
+        return ciphertext.toString();
+    }
+
+    public static String decrypt(String ciphertext, int shift) {
+        return encrypt(ciphertext, 26 - shift);
+    }
+
+    public static void main(String[] args) {
+        String plaintext = "Hello, World!";
+        int shift = 3;
+
+        String encryptedText = encrypt(plaintext, shift);
+        String decryptedText = decrypt(encryptedText, shift);
+
+        System.out.println("Plaintext: " + plaintext);
+        System.out.println("Encrypted: " + encryptedText);
+        System.out.println("Decrypted: " + decryptedText);
+    }
+}
+
+
+
+
+//////mono////
+
+
+
+public class MonoalphabeticCipher {
+
+    public static String encrypt(String plaintext, String key) {
+        StringBuilder ciphertext = new StringBuilder();
+
+        for (int i = 0; i < plaintext.length(); i++) {
+            char ch = plaintext.charAt(i);
+
+            if (Character.isLetter(ch)) {
+                char base = Character.isLowerCase(ch) ? 'a' : 'A';
+                int offset = ch - base;
+                char encryptedChar = key.charAt(offset);
+                ciphertext.append(Character.isLowerCase(ch) ? Character.toLowerCase(encryptedChar) : encryptedChar);
+            } else {
+                ciphertext.append(ch);
+            }
+        }
+
+        return ciphertext.toString();
+    }
+
+    
+    public static String decrypt(String ciphertext, String key) {
+        StringBuilder plaintext = new StringBuilder();
+
+        for (int i = 0; i < ciphertext.length(); i++) {
+            char ch = ciphertext.charAt(i);
+
+            if (Character.isLetter(ch)) {
+                char base = Character.isLowerCase(ch) ? 'a' : 'A';
+                int index = key.indexOf(Character.toLowerCase(ch));
+                char decryptedChar = (char) (base + index);
+                plaintext.append(Character.isLowerCase(ch) ? Character.toLowerCase(decryptedChar) : decryptedChar);
+            } else {
+                plaintext.append(ch);
+            }
+        }
+
+        return plaintext.toString();
+    }
+
+    public static void main(String[] args) {
+        String plaintext = "Hello, World!";
+        String key = "QWERTYUIOPASDFGHJKLZXCVBNM";
+
+        String encryptedText = encrypt(plaintext, key);
+        String decryptedText = decrypt(encryptedText, key);
+
+        System.out.println("Plaintext: " + plaintext);
+        System.out.println("Encrypted: " + encryptedText);
+        System.out.println("Decrypted: " + decryptedText);
+    }
+}
+
+
+
+
+
+
+//////poly////
+
+
+
+
+
+
+public class PolyalphabeticCipher {
+
+    public static String encrypt(String plaintext, String keyword) {
+        StringBuilder ciphertext = new StringBuilder();
+        plaintext = plaintext.toUpperCase();
+        keyword = keyword.toUpperCase();
+
+        int keywordIndex = 0;
+        for (char ch : plaintext.toCharArray()) {
+            if (Character.isLetter(ch)) {
+                int shift = keyword.charAt(keywordIndex) - 'A';
+                char encryptedChar = (char) ((ch - 'A' + shift) % 26 + 'A');
+                ciphertext.append(encryptedChar);
+
+                keywordIndex = (keywordIndex + 1) % keyword.length();
+            } else {
+                ciphertext.append(ch);
+            }
+        }
+
+        return ciphertext.toString();
+    }
+
+    public static String decrypt(String ciphertext, String keyword) {
+        StringBuilder plaintext = new StringBuilder();
+        ciphertext = ciphertext.toUpperCase();
+        keyword = keyword.toUpperCase();
+
+        int keywordIndex = 0;
+        for (char ch : ciphertext.toCharArray()) {
+            if (Character.isLetter(ch)) {
+                int shift = keyword.charAt(keywordIndex) - 'A';
+                char decryptedChar = (char) ((ch - 'A' - shift + 26) % 26 + 'A');
+                plaintext.append(decryptedChar);
+
+                keywordIndex = (keywordIndex + 1) % keyword.length();
+            } else {
+                plaintext.append(ch);
+            }
+        }
+
+        return plaintext.toString();
+    }
+
+    public static void main(String[] args) {
+        String plaintext = "HELLO";
+        String keyword = "KEY";
+
+        String encryptedText = encrypt(plaintext, keyword);
+        String decryptedText = decrypt(encryptedText, keyword);
+
+        System.out.println("Plaintext: " + plaintext);
+        System.out.println("Keyword: " + keyword);
+        System.out.println("Encrypted: " + encryptedText);
+        System.out.println("Decrypted: " + decryptedText);
+    }
+}
+
+
+
+
+
+
+/////playFarie ///////
+
+
+
+
+
+public class PlayfairCipher {
+
+    private static final int MATRIX_SIZE = 5;
+
+    private static char[][] generatePlayfairSquare(String key) {
+        char[][] playfairSquare = new char[MATRIX_SIZE][MATRIX_SIZE];
+        boolean[] usedLetters = new boolean[26];
+
+        String formattedKey = key.toUpperCase().replaceAll("[^A-Z]", "").replaceAll("J", "I");
+
+        int row = 0, col = 0;
+        for (char ch : formattedKey.toCharArray()) {
+            if (!usedLetters[ch - 'A']) {
+                playfairSquare[row][col] = ch;
+                usedLetters[ch - 'A'] = true;
+                col++; 
+                if (col == MATRIX_SIZE) {
+                    col = 0;
+                    row++;
+                }
+            }
+        }
+
+        for (char ch = 'A'; ch <= 'Z'; ch++) {
+            if (ch != 'J' && !usedLetters[ch - 'A']) {
+                playfairSquare[row][col] = ch;
+                col++;
+                if (col == MATRIX_SIZE) {
+                    col = 0;
+                    row++;
+                }
+            }
+        }
+
+        return playfairSquare;
+    }
+
+    private static void findLetterCoordinates(char[][] playfairSquare, char letter, int[] coordinates) {
+        for (int i = 0; i < MATRIX_SIZE; i++) {
+            for (int j = 0; j < MATRIX_SIZE; j++) {
+                if (playfairSquare[i][j] == letter) {
+                    coordinates[0] = i;
+                    coordinates[1] = j;
+                    return;
+                }
+            }
+        }
+    }
+
+    private static String handleRepeatedLetters(String plaintext) {
+        StringBuilder processedText = new StringBuilder(plaintext);
+        for (int i = 0; i < processedText.length() - 1; i += 2) {
+            if (processedText.charAt(i) == processedText.charAt(i + 1)) {
+                processedText.insert(i + 1, 'X');
+            }
+        }
+        return processedText.toString();
+    }
+
+    public static String encrypt(String plaintext, String key) {
+        char[][] playfairSquare = generatePlayfairSquare(key);
+        String processedText = handleRepeatedLetters(plaintext.toUpperCase().replaceAll("[^A-Z]", "").replaceAll("J", "I"));
+        StringBuilder ciphertext = new StringBuilder();
+
+        for (int i = 0; i < processedText.length(); i += 2) {
+            char firstChar = processedText.charAt(i);
+            char secondChar = processedText.charAt(i + 1);
+
+            int[] firstCoordinates = new int[2];
+            int[] secondCoordinates = new int[2];
+            findLetterCoordinates(playfairSquare, firstChar, firstCoordinates);
+            findLetterCoordinates(playfairSquare, secondChar, secondCoordinates);
+
+            int firstRow = firstCoordinates[0];
+            int firstCol = firstCoordinates[1];
+            int secondRow = secondCoordinates[0];
+            int secondCol = secondCoordinates[1];
+
+            char encryptedFirstChar, encryptedSecondChar;
+            if (firstRow == secondRow) {
+                encryptedFirstChar = playfairSquare[firstRow][(firstCol + 1) % MATRIX_SIZE];
+                encryptedSecondChar = playfairSquare[secondRow][(secondCol + 1) % MATRIX_SIZE];
+            } else if (firstCol == secondCol) {
+                encryptedFirstChar = playfairSquare[(firstRow + 1) % MATRIX_SIZE][firstCol];
+                encryptedSecondChar = playfairSquare[(secondRow + 1) % MATRIX_SIZE][secondCol];
+            } else {
+                encryptedFirstChar = playfairSquare[firstRow][secondCol];
+                encryptedSecondChar = playfairSquare[secondRow][firstCol];
+            }
+
+            ciphertext.append(encryptedFirstChar).append(encryptedSecondChar);
+        }
+
+        return ciphertext.toString();
+    }
+
+    public static String decrypt(String ciphertext, String key) {
+        char[][] playfairSquare = generatePlayfairSquare(key);
+        StringBuilder plaintext = new StringBuilder();
+
+        for (int i = 0; i < ciphertext.length(); i += 2) {
+            char firstChar = ciphertext.charAt(i);
+            char secondChar = ciphertext.charAt(i + 1);
+
+            int[] firstCoordinates = new int[2];
+            int[] secondCoordinates = new int[2];
+            findLetterCoordinates(playfairSquare, firstChar, firstCoordinates);
+            findLetterCoordinates(playfairSquare, secondChar, secondCoordinates);
+
+            int firstRow = firstCoordinates[0];
+            int firstCol = firstCoordinates[1];
+            int secondRow = secondCoordinates[0];
+            int secondCol = secondCoordinates[1];
+
+            char decryptedFirstChar, decryptedSecondChar;
+            if (firstRow == secondRow) {
+                decryptedFirstChar = playfairSquare[firstRow][(firstCol - 1 + MATRIX_SIZE) % MATRIX_SIZE];
+                decryptedSecondChar = playfairSquare[secondRow][(secondCol - 1 + MATRIX_SIZE) % MATRIX_SIZE];
+            } else if (firstCol == secondCol) {
+                decryptedFirstChar = playfairSquare[(firstRow - 1 + MATRIX_SIZE) % MATRIX_SIZE][firstCol];
+                decryptedSecondChar = playfairSquare[(secondRow - 1 + MATRIX_SIZE) % MATRIX_SIZE][secondCol];
+            } else {
+                decryptedFirstChar = playfairSquare[firstRow][secondCol];
+                decryptedSecondChar = playfairSquare[secondRow][firstCol];
+            }
+
+            plaintext.append(decryptedFirstChar).append(decryptedSecondChar);
+        }
+
+        return plaintext.toString();
+    }
+
+
+
+
+
+    public static void main(String[] args) {
+        String plaintext = "HELLO";
+        String key = "KEYWORD";
+
+        String encryptedText = encrypt(plaintext, key);
+        String decryptedText = decrypt(encryptedText, key);
+
+        System.out.println("Plaintext: " + plaintext);
+        System.out.println("Key:       " + key);
+        System.out.println("Encrypted: " + encryptedText);
+        System.out.println("Decrypted: " + decryptedText);
+    }
+}
+
+
+
+
+
+
+/////RailFence ////////
+
+
+
+
+class RailFence {
+
+    public static String encrypt(String message, int rails) {
+
+        message = message.replace(" ", "").toUpperCase();
+
+        if (rails <= 1) {
+            return message;
+        }
+
+        StringBuilder[] rail = new StringBuilder[rails];
+
+        for (int i = 0; i < rails; i++) {
+            rail[i] = new StringBuilder();
+        }
+
+        int cycle = 2 * (rails - 1);
+
+        for (int i = 0; i < message.length(); i++) {
+
+            int positionInCycle = i % cycle;
+            int row;
+
+            if (positionInCycle < rails) {
+
+                row = positionInCycle;
+
+            } else {
+                row = cycle - positionInCycle;
+            }
+
+            rail[row].append(message.charAt(i));
+
+        }
+
+        StringBuilder cipherText = new StringBuilder();
+
+        for (int i = 0; i < rails; i++) {
+
+            cipherText.append(rail[i]);
+
+        }
+
+        return cipherText.toString();
+
+    }
+
+    public static void main(String[] args) {
+
+        String message = "CRACKMEIFYOUCAN";
+
+        int rails = 3;
+
+        String cipherText = encrypt(message, rails);
+
+        System.out.println(" ciphger :" + cipherText);
+
+    }
+
+}
+
+
+
+
+//////onetimepad///////////
+
+
+public class OneTimePadCipher {
+
+    
+    public static String encrypt(String plaintext, String key) {
+        StringBuilder ciphertext = new StringBuilder();
+
+        for (int i = 0; i < plaintext.length(); i++) {
+            char ch = plaintext.charAt(i);
+
+            char encryptedChar = (char) (ch ^ key.charAt(i));
+            ciphertext.append(encryptedChar);
+        }
+
+        return ciphertext.toString();
+    }
+
+    public static String decrypt(String ciphertext, String key) {
+        return encrypt(ciphertext, key);
+    }
+
+    public static void main(String[] args) {
+        String plaintext = "Hello, World!";
+        String key = "RANDOMKEY123456789"; 
+
+        if (plaintext.length() != key.length()) {
+            System.out.println("Plaintext and key must have the same length.");
+            return;
+        }
+
+        String encryptedText = encrypt(plaintext, key);
+        String decryptedText = decrypt(encryptedText, key);
+
+        System.out.println("Plaintext: " + plaintext);
+        System.out.println("Key:       " + key);
+        System.out.println("Encrypted: " + encryptedText);
+        System.out.println("Decrypted: " + decryptedText);
+    }
+}
+
+
+
+
+////////Columnar////////
+
+
+import java.util.Arrays;
+
+public class ColumnarTranspositionCipher {
+
+    public static String encrypt(String plaintext, String keyword) {
+
+        plaintext = plaintext.replaceAll("\\s+", "").toUpperCase();
+        keyword = keyword.toUpperCase();
+
+        int keyLength = keyword.length();
+
+        int[] keyOrder = new int[keyLength];
+
+        char[] sortedKeyword = keyword.toCharArray();
+        Arrays.sort(sortedKeyword);
+
+     
+
+        for (int i = 0; i < keyLength; i++) {
+            char ch = sortedKeyword[i];
+
+            keyOrder[i] = keyword.indexOf(ch);
+
+            keyword = keyword.replace(ch, ' ');
+        }
+
+        int rows = (int) Math.ceil((double) plaintext.length() / keyLength);
+
+        char[][] transpositionGrid = new char[rows][keyLength];
+
+        int index = 0;
+
+        for (int col = 0; col < keyLength; col++) {
+            for (int row = 0; row < rows; row++) {
+                if (index < plaintext.length()) {
+                    transpositionGrid[row][keyOrder[col]] = plaintext.charAt(index);
+                    index++;
+                }
+            }
+        }
+
+        StringBuilder ciphertext = new StringBuilder();
+
+        for (int col : keyOrder) {
+            for (int row = 0; row < rows; row++) {
+                if (transpositionGrid[row][col] != '\0') {
+                    ciphertext.append(transpositionGrid[row][col]);
+                }
+            }
+        }
+
+        return ciphertext.toString();
+    }
+
+
+    public static String decrypt(String ciphertext, String keyword) {
+
+        ciphertext = ciphertext.replaceAll("\\s+", "").toUpperCase();
+        keyword = keyword.toUpperCase();
+
+        int keyLength = keyword.length();
+
+        int rows = (int) Math.ceil((double) ciphertext.length() / keyLength);
+
+        int[] keyOrder = new int[keyLength];
+        char[] sortedKeyword = keyword.toCharArray();
+        Arrays.sort(sortedKeyword);
+
+        for (int i = 0; i < keyLength; i++) {
+            char ch = sortedKeyword[i];
+            keyOrder[i] = keyword.indexOf(ch);
+            keyword = keyword.replace(ch, ' ');
+        }
+
+        char[][] transpositionGrid = new char[rows][keyLength];
+
+        int index = 0;
+
+       
+        for (int col : keyOrder) {
+            for (int row = 0; row < rows; row++) {
+                if (index < ciphertext.length()) {
+                    transpositionGrid[row][col] = ciphertext.charAt(index);
+                    index++;
+                }
+            }
+        }
+
+        StringBuilder plaintext = new StringBuilder();
+
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < keyLength; col++) {
+                if (transpositionGrid[row][col] != '\0') {
+                    plaintext.append(transpositionGrid[row][col]);
+                }
+            }
+        }
+
+        return plaintext.toString();
+    }
+
+
+    public static void main(String[] args) {
+
+        String plaintext = "HELLO WORLD";
+        String keyword = "KEY";
+
+        String encryptedText = encrypt(plaintext, keyword);
+        String decryptedText = decrypt(encryptedText, keyword);
+
+        System.out.println("Plaintext: " + plaintext);
+        System.out.println("Keyword: " + keyword);
+        System.out.println("Encrypted: " + encryptedText);
+        System.out.println("Decrypted: " + decryptedText);
+    }
+}
+
+//////////RSA/////////
+
+
+
+ class RSA {
+
+    private static long modPow(long a, long b, long m) {
+        long result = 1;
+        a %= m;
+
+        while (b > 0) {
+            if ((b & 1) == 1) {
+                result = (result * a) % m;
+            }
+            b >>= 1;
+            a = (a * a) % m;
+        }
+
+        return result;
+    }
+
+    public static long encrypt(long plaintext, long e, long n) {
+        return modPow(plaintext, e, n);
+    }
+
+    public static long decrypt(long ciphertext, long d, long n) {
+        return modPow(ciphertext, d, n);
+    }
+
+    public static void main(String[] args) {
+        long p = 61; 
+        long q = 53; 
+        long n = p * q;
+        long phi = (p - 1) * (q - 1);
+        long e = 17; 
+        long d = 2753; 
+
+        
+        long plaintext = 1234;
+        long ciphertext = encrypt(plaintext, e, n);
+        long decryptedText = decrypt(ciphertext, d, n);
+
+        System.out.println("Plaintext: " + plaintext);
+        System.out.println("Ciphertext: " + ciphertext);
+        System.out.println("Decrypted: " + decryptedText);
+    }
+}
+
+
+
