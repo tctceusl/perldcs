@@ -240,6 +240,44 @@ public class PlayfairCipher {
         return result;
     }
 
+
+
+
+static String decrypt(String cipherText) {
+    cipherText = cipherText.toUpperCase().replace("J", "I");
+    String result = "";
+
+    for (int i = 0; i < cipherText.length(); i += 2) {
+        char a = cipherText.charAt(i);
+        char b = cipherText.charAt(i + 1);
+
+        int r1 = 0, c1 = 0, r2 = 0, c2 = 0;
+
+        
+        for (int r = 0; r < 5; r++) {
+            for (int c = 0; c < 5; c++) {
+                if (matrix[r][c] == a) { r1 = r; c1 = c; }
+                if (matrix[r][c] == b) { r2 = r; c2 = c; }
+            }
+        }
+
+        if (r1 == r2) { 
+            result += matrix[r1][(c1 - 1 + 5) % 5];
+            result += matrix[r2][(c2 - 1 + 5) % 5];
+        }
+        else if (c1 == c2) { 
+            result += matrix[(r1 - 1 + 5) % 5][c1];
+            result += matrix[(r2 - 1 + 5) % 5][c2];
+        }
+        else { 
+            result += matrix[r1][c2];
+            result += matrix[r2][c1];
+        }
+    }
+
+    return result;
+}
+
     public static void main(String[] args) {
         String key = "KEYWORD";
         String plaintext = "HELLO";
@@ -265,117 +303,135 @@ public class PlayfairCipher {
 
 
 
-class RailFence {
 
-    public static String encrypt(String message, int rails) {
+public class RailFenceCipher {
 
-        message = message.replace(" ", "").toUpperCase();
+    
+    public static String encrypt(String plaintext, int rails) {
+        char[][] railMatrix = new char[rails][plaintext.length()];
+        boolean down = false;
+        int row = 0, col = 0;
 
-        if (rails <= 1) {
-            return message;
-        }
-
-        StringBuilder[] rail = new StringBuilder[rails];
-
+       
         for (int i = 0; i < rails; i++) {
-            rail[i] = new StringBuilder();
+            for (int j = 0; j < plaintext.length(); j++) {
+                railMatrix[i][j] = '\0';
+            }
         }
 
-        int cycle = 2 * (rails - 1);
+       
+        for (char ch : plaintext.toCharArray()) {
+            railMatrix[row][col] = ch;
 
-        for (int i = 0; i < message.length(); i++) {
-
-            int positionInCycle = i % cycle;
-            int row;
-
-            if (positionInCycle < rails) {
-
-                row = positionInCycle;
-
-            } else {
-                row = cycle - positionInCycle;
+       
+            if (row == 0 || row == rails - 1) {
+                down = !down;
             }
 
-            rail[row].append(message.charAt(i));
+           
+            if (down) {
+                row++;
+            } else {
+                row--;
+            }
 
+            col++;
         }
 
-        StringBuilder cipherText = new StringBuilder();
-
+       
+        StringBuilder ciphertext = new StringBuilder();
         for (int i = 0; i < rails; i++) {
-
-            cipherText.append(rail[i]);
-
+            for (int j = 0; j < plaintext.length(); j++) {
+                if (railMatrix[i][j] != '\0') {
+                    ciphertext.append(railMatrix[i][j]);
+                }
+            }
         }
 
-        return cipherText.toString();
-
+        return ciphertext.toString();
     }
 
+   
+    public static String decrypt(String ciphertext, int rails) {
+        char[][] railMatrix = new char[rails][ciphertext.length()];
+        boolean down = false;
+        int row = 0, col = 0;
 
+        
+        for (int i = 0; i < rails; i++) {
+            for (int j = 0; j < ciphertext.length(); j++) {
+                railMatrix[i][j] = '\0';
+            }
+        }
 
+       
+        for (int i = 0; i < ciphertext.length(); i++) {
+            railMatrix[row][col] = '*';
 
-public static String decrypt(String cipher, int rails) {
+           
+            if (row == 0 || row == rails - 1) {
+                down = !down;
+            }
 
-    if (rails <= 1)
-        return cipher;
+            
+            if (down) {
+                row++;
+            } else {
+                row--;
+            }
 
-    int length = cipher.length();
-    int cycle = 2 * (rails - 1);
+            col++;
+        }
 
-    
-    int[] railLength = new int[rails];
+        
+        int index = 0;
+        for (int i = 0; i < rails; i++) {
+            for (int j = 0; j < ciphertext.length(); j++) {
+                if (railMatrix[i][j] == '*') {
+                    railMatrix[i][j] = ciphertext.charAt(index);
+                    index++;
+                }
+            }
+        }
 
-    for (int i = 0; i < length; i++) {
-        int pos = i % cycle;
-        int row = (pos < rails) ? pos : cycle - pos;
-        railLength[row]++;
+       
+        StringBuilder plaintext = new StringBuilder();
+        row = 0;
+        col = 0;
+        for (int i = 0; i < ciphertext.length(); i++) {
+            plaintext.append(railMatrix[row][col]);
+
+           
+            if (row == 0 || row == rails - 1) {
+                down = !down;
+            }
+
+            
+            if (down) {
+                row++;
+            } else {
+                row--;
+            }
+
+            col++;
+        }
+
+        return plaintext.toString();
     }
-
-    
-    StringBuilder[] rail = new StringBuilder[rails];
-
-    int index = 0;
-    for (int i = 0; i < rails; i++) {
-        rail[i] = new StringBuilder(cipher.substring(index, index + railLength[i]));
-        index += railLength[i];
-    }
-
-    
-    StringBuilder result = new StringBuilder();
-    int[] pointer = new int[rails];  
-
-    for (int i = 0; i < length; i++) {
-        int pos = i % cycle;
-        int row = (pos < rails) ? pos : cycle - pos;
-
-        result.append(rail[row].charAt(pointer[row]++));
-    }
-
-    return result.toString();
-}
-
-
-
-
-
-
-
 
     public static void main(String[] args) {
-
-        String message = "CRACKMEIFYOUCAN";
-
+        String plaintext = "HELLO";
         int rails = 3;
 
-        String cipherText = encrypt(message, rails);
+        String encryptedText = encrypt(plaintext, rails);
+        String decryptedText = decrypt(encryptedText, rails);
 
-        System.out.println(" ciphger :" + cipherText);
-
+        System.out.println("Plaintext: " + plaintext);
+        System.out.println("Rails: " + rails);
+        System.out.println("Encrypted: " + encryptedText);
+        System.out.println("Decrypted: " + decryptedText);
     }
-
 }
-
 
 
 
@@ -591,6 +647,7 @@ public class ColumnarTranspositionCipher {
         System.out.println("Decrypted: " + decryptedText);
     }
 }
+
 
 
 
