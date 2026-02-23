@@ -1,1020 +1,191 @@
-//switch configuration 
+Got it — here is everything merged into ONE continuous answer (single text block) exactly like you’d put inside a .txt file 👇
 
 
-Basic   Switch  setup
+---
 
-enable/en
+CS3113 Practical Answers
+
+
+---
+
+Q1 – Subnetting (192.168.100.0/24 using VLSM)
+
+VLAN 20 Students (80 hosts)
+Subnet ID: 192.168.100.0/25
+Mask: 255.255.255.128
+Usable: 192.168.100.1 – 192.168.100.126
+Broadcast: 192.168.100.127
+
+VLAN 10 Admin (40 hosts)
+Subnet ID: 192.168.100.128/26
+Mask: 255.255.255.192
+Usable: 192.168.100.129 – 192.168.100.190
+Broadcast: 192.168.100.191
+
+WLAN Network (25 hosts)
+Subnet ID: 192.168.100.192/27
+Mask: 255.255.255.224
+Usable: 192.168.100.193 – 192.168.100.222
+Broadcast: 192.168.100.223
+
+VLAN 30 Servers (20 hosts)
+Subnet ID: 192.168.100.224/27
+Mask: 255.255.255.224
+Usable: 192.168.100.225 – 192.168.100.254
+Broadcast: 192.168.100.255
+
+
+---
+
+SW1 VLAN Configuration
+
+enable
 conf t
-hostname sw0
-banner ?
-banner motd ?
-
-banner motd $
-*************************
-only authorized users allowsed
-**************************
-$
-
-
-
-Line console password
-(switch0) 
-
-line con 0
-password cisco@1234
-login
-
-user privilage mode password
-(switch0)
-
-enable secret switch@1234
-
-
-//vlan configuration
-
-
-**Switch0
-
-en
-conf t
-
 vlan 10
-name HR
-
 vlan 20
-name IT
+vlan 30
 
-int Fa0/1
+int fa0/1
 switchport mode access
 switchport access vlan 10
 
-int Fa0/2
-switchport mode access
-switchport access vlan 10
-
-int Fa0/3
+int fa0/2
 switchport mode access
 switchport access vlan 20
 
-int Fa0/4
+int fa0/3
 switchport mode access
-switchport access vlan 20
+switchport access vlan 30
 
-int Fa0/5
+int fa0/24
 switchport mode trunk
- 
- 
- 
- **Router0
 
-en
+
+---
+
+Router R1 Inter-VLAN Routing (Router-on-a-Stick)
+
 conf t
-
-int Fa0/0
+int g0/0
 no shutdown
 
-int Fa0/0.10
-encapsulation dot1q 10
-ip add 192.168.1.1 255.255.255.0
+int g0/0.10
+encapsulation dot1Q 10
+ip address 192.168.100.129 255.255.255.192
 
-int Fa0/0.20
-encapsulation dot1q 20
-ip add 192.168.2.2 255.255.255.0
+int g0/0.20
+encapsulation dot1Q 20
+ip address 192.168.100.1 255.255.255.128
+
+int g0/0.30
+encapsulation dot1Q 30
+ip address 192.168.100.225 255.255.255.224
 
 
+---
+
+DHCP on SRV1
+
+Create DHCP pools:
+
+VLAN10 → 192.168.100.128/26 (exclude 192.168.100.129)
+VLAN20 → 192.168.100.0/25 (exclude 192.168.100.1)
+VLAN30 → 192.168.100.224/27 (exclude 192.168.100.225)
+WLAN → 192.168.100.192/27 (exclude 192.168.100.193)
 
 
- 
+---
+
+DNS Configuration on SRV1
+
+A Record:
+www.fastech.tc.lk → 192.168.100.226
 
 
-//DHCP with router 
+---
 
----Router0--
+WLAN Configuration
 
-en
+SSID: TechCampus-WiFi
+Security: WPA2-PSK
+Password: TCwifi123
+Gateway: 192.168.100.193
+
+
+---
+
+Q2 – Building B
+
+
+---
+
+SW2 Configuration
+
+vlan 40
+
+int fa0/1
+switchport mode access
+switchport access vlan 40
+
+int fa0/2
+switchport mode access
+switchport access vlan 20
+
+int fa0/24
+switchport mode trunk
+
+
+---
+
+RIP Configuration on R2
+
 conf t
+router rip
+version 2
+network 192.168.100.0
+no auto-summary
 
-interface Gig0/0
-ip add 192.168.1.1 255.255.255.0
-no sh 
-exit
 
-interface Gig0/1
-ip add 192.168.2.1 255.255.255.0
-no sh 
-exit
+---
 
-ip dhcp excluded-address 192.168.1.1
-ip dhcp excluded-address 192.168.2.1
-
-ip dhcp pool Network-1
-network 192.168.1.0 255.255.255.0
-default-router 192.168.1.1
-dns-server 8.8.8.8
-
-ip dhcp pool Network-2
-network 192.168.2.0 255.255.255.0
-default-router 192.168.2.1
-dns-server 8.8.8.8
-
- 
- 
- 
- //ftp configuration
- 
-**router
-enable
-configure terminal
-
-hostname R1
-
-interface g0/0
-ip address 192.168.1.1 255.255.255.0
-no shutdown
-exit
-
-end
-write memory 
-
- 
-**switch
-enable
-configure terminal
-
-hostname S1
-
-interface vlan 1
-ip address 192.168.1.3 255.255.255.0
-no shutdown
-exit
-
-ip default-gateway 192.168.1.1
-
-end
-write memory
-
-
-**dns server 
-
-IP Address: 192.168.1.2
-Subnet Mask: 255.255.255.0
-Default Gateway: 192.168.1.1
-DNS Server: 192.168.1.2
-
-Services → DNS → Turn ON DNS
-
-**pc
-
-IP Address: 192.168.1.10
-Subnet Mask: 255.255.255.0
-Default Gateway: 192.168.1.1
-DNS Server: 192.168.1.2
-
-**check ping 192.168.1.2
-
-
-
-
-//dns server 
-
-
-**ROUTER CONFIGURATION
-enable
-configure terminal
-
-! Set hostname
-hostname R1
-
-! Configure Network 1
-interface g0/0
-ip address 192.168.10.1 255.255.255.0
-no shutdown
-exit
-
-! Configure Network 2
-interface g0/1
-ip address 192.168.20.1 255.255.255.0
-no shutdown
-exit
-
-end
-write memory
-
-
-**switch 
-
-enable
-configure terminal
-
-hostname S1
-
-interface vlan 1
-ip address 192.168.10.5 255.255.255.0
-no shutdown
-exit
-
-ip default-gateway 192.168.10.1
-
-end
-write memory
-
-
-**dns server  configure 
-
-IP Address: 192.168.10.2
-Subnet Mask: 255.255.255.0
-Default Gateway: 192.168.10.1
-DNS Server: 192.168.10.2
-
-Services → DNS → ON
-
-add record 
-
-**dns secondary server 
-
-IP Address: 192.168.20.2
-Subnet Mask: 255.255.255.0
-Default Gateway: 192.168.20.1
-DNS Server: 192.168.20.2
-
-
-**pc 
-IP Address: 192.168.10.10
-Subnet Mask: 255.255.255.0
-Default Gateway: 192.168.10.1
-DNS Server: 192.168.10.2
-
-bing......
-
-
-
-
-//bgp
-
-------BGP Configuration-----
-
-Router0
-
-en
-conf t
-router bgp 35
-bgp router-id 3.3.3.3
-neighbor 10.10.10.2 remote-as 20
-neighbor 20.20.20.2 remote-as 50
-network 10.10.10.0 mask 255.255.255.252
-network 20.20.20.0 mask 255.255.255.252
-
-
-------BGP Configuration-----
-
-Router1
-
-en
-conf t
-router bgp 20
-bgp router-id 1.1.1.1
-neighbor 10.10.10.1 remote-as 35
-network 10.10.10.0 mask 255.255.255.252
-network 192.168.10.0 mask 255.255.255.0
-
-
-------BGP Configuration-----
-
-Router2
-
-en
-conf t
-router bgp 50
-bgp router-id 2.2.2.2
-neighbor 20.20.20.1 remote-as 35
-network 20.20.20.0 mask 255.255.255.252
-network 192.168.20.0 mask 255.255.255.0
-
-
-
-
-
-//osfp 
-
-
---------Router0-----
-
-en
-conf t
-
-interface Gig0/1
-ip address 192.168.10.1 255.255.255.0
-no shutdown
-exit
-
-interface Gig0/0
-ip address 10.0.0.1 255.255.255.252
-no shutdown 
-exit
-
-interface Gig0/2
-ip address 10.0.0.9 255.255.255.252
-no shutdown
-exit
+OSPF Configuration on R1
 
 router ospf 1
 router-id 1.1.1.1
-network 192.168.10.1 0.0.0.0 area 0
-network 10.0.0.1 0.0.0.0 area 0
-network 10.0.0.9 0.0.0.0 area 0
+network 192.168.100.0 0.0.0.255 area 0
 
 
+---
 
---------Router1-----
-
-en
-conf t
-
-interface Gig0/0
-ip address 10.0.0.2 255.255.255.252
-no shutdown
-exit
-
-interface Gig0/1
-ip address 10.0.0.5 255.255.255.252
-no shutdown 
-exit
+Route Redistribution
 
 router ospf 1
-router-id 2.2.2.2
-network 10.0.0.2 0.0.0.0 area 0
-network 10.0.0.5 0.0.0.0 area 0
+redistribute rip subnets
 
-
-
---------Router2-----
-
-en
-conf t
-
-interface Gig0/1
-ip address 192.168.20.1 255.255.255.0
-no shutdown
-exit
-
-interface Gig0/0
-ip address 10.0.0.6 255.255.255.252
-no shutdown 
-exit
-
-interface Gig0/2
-ip address 10.0.0.10 255.255.255.252
-no shutdown
-exit
-
-router ospf 1
-router-id 3.3.3.3
-network 192.168.20.1 0.0.0.0 area 0
-network 10.0.0.6 0.0.0.0 area 0
-network 10.0.0.10 0.0.0.0 area 0
-
-
-
-
-
-//rip
-
-Router0
-
-en
-conf t
 router rip
-version 2
-network 60.0.0.1
-network 50.0.0.1
-network 40.0.0.2
-no auto-summary
-exit
+redistribute ospf 1 metric 2
 
 
-Router1
+---
 
-en
-conf t
-router rip
-version 2
-network 50.0.0.2
-network 8.0.0.1
-network 20.0.0.2
-no auto-summary
-exit
- 
- **has to do for all routers 
- 
- 
- 
-// NAT
+Static NAT Configuration
+
+ip nat inside source static 192.168.100.226 203.94.55.10
 
 
-**Router Configuration (NAT Inside & Outside)
+---
 
+SSH Configuration on R1
 
-enable
-configure terminal
-
-! Set host name
 hostname R1
-
-! Configure Inside interface
-interface g0/0
-ip address 192.168.1.1 255.255.255.0
-ip nat inside   ! Mark this as NAT inside interface
-no shutdown
-exit
-
-! Configure Outside interface
-interface g0/1
-ip address 203.0.113.2 255.255.255.0
-ip nat outside  ! Mark this as NAT outside interface
-no shutdown
-exit
-
-
-
-**static nat 
-
-! Map PC1 192.168.1.10 → 203.0.113.10
-ip nat inside source static 192.168.1.10 203.0.113.10
-
-
-**Dynamic Nat 
-
-! Create a pool of public IPs for NAT
-ip nat pool MY_POOL 203.0.113.20 203.0.113.25 netmask 255.255.255.0
-
-! Define which internal network can use NAT
-access-list 1 permit 192.168.1.0 0.0.0.255
-
-! Apply dynamic NAT
-ip nat inside source list 1 pool MY_POOL
-
-
-
-
-
-
-
-
-
-
-
-//remote login 
-
-
-Router1 (HR Router) SSH Configuration
-
-enable
-configure terminal
-
-! Set router hostname
-hostname Router1
-
-! Set domain name (required for SSH key generation)
-ip domain-name techlearn.local
-
-! Create local user for SSH login
-username root privilege 15 secret cs3113
-
-! Enable SSH version 2
+ip domain-name fastech.local
+username admin secret cisco123
+crypto key generate rsa
 ip ssh version 2
 
-! Generate RSA key pair for SSH
-! 1024-bit is enough for labs
-crypto key generate rsa modulus 1024
-
-! Configure VTY lines for SSH only (disable Telnet)
 line vty 0 4
-transport input ssh        ! Only allow SSH
-login local                ! Use local username/password
-exit
+transport input ssh
+login local
 
-! Optional: set timeout and max attempts
-ip ssh time-out 60
-ip ssh authentication-retries 3
 
-end
-write memory
-
-
-**Router2 Configuration (SSH Client)
-
-enable
-configure terminal
-
-! Set hostname for Router2
-hostname Router2
-
-! Configure IP address if not set
-interface g0/0
-ip address 192.168.1.2 255.255.255.0
-no shutdown
-exit
-
-! Set default route towards Router1 (optional)
-ip route 0.0.0.0 0.0.0.0 192.168.1.1
-
-end
-write memory
-
-
-
-**Verify SSH from Router2 to Router1
-
-! From Router2 CLI
-ssh -l root 192.168.1.1
-
-
-//////////////////////////////////////////////ca 03
-
-===============================================================================
-TECHLEARN PVT LTD - COMPLETE NETWORK CONFIGURATION
-===============================================================================
-
-1. BASIC ROUTER CONFIGURATIONS
-===============================================================================
-
-ROUTER0:
---------
-Router>enable
-Router#configure terminal
-Router(config)#hostname Router0
-Router0(config)#interface g0/0
-Router0(config-if)#ip address 192.168.10.1 255.255.255.0
-Router0(config-if)#no shutdown
-Router0(config-if)#exit
-Router0(config)#interface s0/0/0
-Router0(config-if)#ip address 10.0.0.1 255.255.255.252
-Router0(config-if)#clock rate 64000
-Router0(config-if)#no shutdown
-Router0(config-if)#exit
-Router0(config)#exit
-Router0#write memory
-
-ROUTER1:
---------
-Router>enable
-Router#configure terminal
-Router(config)#hostname Router1
-Router1(config)#interface g0/0
-Router1(config-if)#ip address 192.168.20.1 255.255.255.0
-Router1(config-if)#no shutdown
-Router1(config-if)#exit
-Router1(config)#interface s0/0/0
-Router1(config-if)#ip address 10.0.0.2 255.255.255.252
-Router1(config-if)#no shutdown
-Router1(config-if)#exit
-Router1(config)#interface s0/0/1
-Router1(config-if)#ip address 10.0.1.1 255.255.255.252
-Router1(config-if)#clock rate 64000
-Router1(config-if)#no shutdown
-Router1(config-if)#exit
-Router1(config)#exit
-Router1#write memory
-
-ROUTER2:
---------
-Router>enable
-Router#configure terminal
-Router(config)#hostname Router2
-Router2(config)#interface g0/0
-Router2(config-if)#ip address 192.168.30.1 255.255.255.0
-Router2(config-if)#no shutdown
-Router2(config-if)#exit
-Router2(config)#interface s0/0/0
-Router2(config-if)#ip address 10.0.1.2 255.255.255.252
-Router2(config-if)#no shutdown
-Router2(config-if)#exit
-Router2(config)#exit
-Router2#write memory
-
-===============================================================================
-
-2. DHCP CONFIGURATION ON ROUTER0
-===============================================================================
-
-Router0>enable
-Router0#configure terminal
-Router0(config)#ip dhcp excluded-address 192.168.10.1 192.168.10.10
-Router0(config)#ip dhcp pool SALES_POOL
-Router0(dhcp-config)#network 192.168.10.0 255.255.255.0
-Router0(dhcp-config)#default-router 192.168.10.1
-Router0(dhcp-config)#dns-server 192.168.30.2
-Router0(dhcp-config)#lease 7
-Router0(dhcp-config)#exit
-Router0(config)#service dhcp
-Router0(config)#exit
-Router0#write memory
-
-===============================================================================
-
-3. DNS CONFIGURATION ON ROUTER2
-===============================================================================
-
-Router2>enable
-Router2#configure terminal
-Router2(config)#ip dns server
-Router2(config)#ip host hr.local 192.168.20.10
-Router2(config)#ip domain-lookup
-Router2(config)#ip name-server 8.8.8.8
-Router2(config)#ip name-server 192.168.30.2
-Router2(config)#exit
-Router2#write memory
-
-===============================================================================
-
-4. SSH CONFIGURATION ON ROUTER1
-===============================================================================
-
-Router1>enable
-Router1#configure terminal
-Router1(config)#hostname Router1
-Router1(config)#ip domain-name techlearn.local
-Router1(config)#username root privilege 15 password cs3113
-Router1(config)#crypto key generate rsa
-Router1(config)#ip ssh version 2
-Router1(config)#ip ssh authentication-retries 3
-Router1(config)#ip ssh time-out 60
-Router1(config)#line vty 0 4
-Router1(config-line)#transport input ssh
-Router1(config-line)#login local
-Router1(config-line)#exec-timeout 10 0
-Router1(config-line)#exit
-Router1(config)#service password-encryption
-Router1(config)#exit
-Router1#write memory
-
-===============================================================================
-
-5. RIP ROUTING CONFIGURATION
-===============================================================================
-
-ROUTER0:
---------
-Router0>enable
-Router0#configure terminal
-Router0(config)#router rip
-Router0(config-router)#version 2
-Router0(config-router)#network 192.168.10.0
-Router0(config-router)#network 10.0.0.0
-Router0(config-router)#no auto-summary
-Router0(config-router)#exit
-Router0(config)#exit
-Router0#write memory
-
-ROUTER1:
---------
-Router1>enable
-Router1#configure terminal
-Router1(config)#router rip
-Router1(config-router)#version 2
-Router1(config-router)#network 192.168.20.0
-Router1(config-router)#network 10.0.0.0
-Router1(config-router)#no auto-summary
-Router1(config-router)#exit
-Router1(config)#exit
-Router1#write memory
-
-===============================================================================
-
-6. OSPF ROUTING CONFIGURATION
-===============================================================================
-
-ROUTER1:
---------
-Router1>enable
-Router1#configure terminal
-Router1(config)#router ospf 1
-Router1(config-router)#network 192.168.20.0 0.0.0.255 area 0
-Router1(config-router)#network 10.0.1.0 0.0.0.3 area 0
-Router1(config-router)#exit
-Router1(config)#exit
-Router1#write memory
-
-ROUTER2:
---------
-Router2>enable
-Router2#configure terminal
-Router2(config)#router ospf 1
-Router2(config-router)#network 192.168.30.0 0.0.0.255 area 0
-Router2(config-router)#network 10.0.1.0 0.0.0.3 area 0
-Router2(config-router)#exit
-Router2(config)#exit
-Router2#write memory
-
-===============================================================================
-
-7. REDISTRIBUTION ON ROUTER1
-===============================================================================
-
-Router1>enable
-Router1#configure terminal
-Router1(config)#router rip
-Router1(config-router)#redistribute ospf 1 metric 2
-Router1(config-router)#exit
-Router1(config)#router ospf 1
-Router1(config-router)#redistribute rip subnets metric 20
-Router1(config-router)#exit
-Router1(config)#exit
-Router1#write memory
-
-===============================================================================
-
-8. PC CONFIGURATIONS
-===============================================================================
-
-SALES PC (PC0):
----------------
-Click PC0 → Desktop → IP Configuration → Select DHCP → Click "Renew"
-
-HR PC (PC1):
-------------
-IP: 192.168.20.10
-Mask: 255.255.255.0
-Gateway: 192.168.20.1
-DNS: 192.168.30.2
-
-IT PC (PC2):
-------------
-IP: 192.168.30.10
-Mask: 255.255.255.0
-Gateway: 192.168.30.1
-DNS: 192.168.30.2
-
-===============================================================================
-
-9. VERIFICATION COMMANDS
-===============================================================================
-
-Router0#show ip dhcp binding
-Router0#show ip route
-Router0#show ip protocols
-
-Router1#show ip route
-Router1#show ip ospf neighbor
-Router1#show ip rip database
-Router1#show ip ssh
-
-Router2#show ip route
-Router2#show hosts
-Router2#show ip ospf database
-
-PC0>ping 192.168.10.1
-PC0>ping 192.168.20.1
-PC0>ping 192.168.20.10
-PC0>ping hr.local
-PC0>ping 192.168.30.2
-
-Router2#ssh -l root 192.168.20.1
-Password: cs3113
-
-
-//////////////// ca02////////////
-
-
-TASK 1: DYNAMIC NAT CONFIGURATION
-===============================================================================
-
-TOPOLOGY SETUP:
----------------
-Devices: 1 Router (2911), 1 Switch (2960), 3 PCs, 1 Server
-
-CONNECTIONS:
-------------
-PC1 Fa0 ----- Switch Fa0/1
-PC2 Fa0 ----- Switch Fa0/2
-PC3 Fa0 ----- Switch Fa0/3
-Switch Fa0/24 ----- Router0 G0/0
-Router0 G0/1 ----- Internet Server
-
-PC CONFIGURATIONS:
-------------------
-PC1: 192.168.10.10/24, Gateway: 192.168.10.1
-PC2: 192.168.10.11/24, Gateway: 192.168.10.1
-PC3: 192.168.10.12/24, Gateway: 192.168.10.1
-
-SERVER CONFIGURATION:
---------------------
-Internet Server: 203.0.113.100/24, Gateway: 203.0.113.1
-
-ROUTER0 COMPLETE CONFIGURATION:
--------------------------------
-Router>enable
-Router#configure terminal
-Router(config)#hostname NAT_Router
-
-! Configure interfaces
-NAT_Router(config)#interface g0/0
-NAT_Router(config-if)#ip address 192.168.10.1 255.255.255.0
-NAT_Router(config-if)#ip nat inside
-NAT_Router(config-if)#no shutdown
-NAT_Router(config-if)#exit
-
-NAT_Router(config)#interface g0/1
-NAT_Router(config-if)#ip address 203.0.113.1 255.255.255.0
-NAT_Router(config-if)#ip nat outside
-NAT_Router(config-if)#no shutdown
-NAT_Router(config-if)#exit
-
-! Create NAT pool
-NAT_Router(config)#ip nat pool NAT_POOL1 203.0.113.10 203.0.113.20 netmask 255.255.255.0
-
-! Create ACL for internal network
-NAT_Router(config)#access-list 1 permit 192.168.10.0 0.0.0.255
-
-! Apply Dynamic NAT
-NAT_Router(config)#ip nat inside source list 1 pool NAT_POOL1
-
-! Add default route
-NAT_Router(config)#ip route 0.0.0.0 0.0.0.0 g0/1
-
-! Save configuration
-NAT_Router(config)#exit
-NAT_Router#write memory
-
-VERIFICATION COMMANDS:
----------------------
-NAT_Router#show ip nat translations
-NAT_Router#show ip nat statistics
-NAT_Router#show access-list
-NAT_Router#show ip interface brief
-
-PC TESTING:
------------
-PC1>ping 203.0.113.100
-PC2>ping 203.0.113.100
-PC3>ping 203.0.113.100
-
-Expected NAT translations after pings:
-Pro Inside global      Inside local       Outside local      Outside global
---- 203.0.113.10       192.168.10.10      203.0.113.100      203.0.113.100
---- 203.0.113.11       192.168.10.11      203.0.113.100      203.0.113.100
---- 203.0.113.12       192.168.10.12      203.0.113.100      203.0.113.100
-
-===============================================================================
-
-TASK 2: WIRELESS NETWORK CONFIGURATION
-===============================================================================
-
-TOPOLOGY SETUP:
----------------
-Devices: 1 Wireless Router (WRT300N), 2 Laptops, 1 PC
-
-CONNECTIONS:
-------------
-PC (wired) ----- Wireless Router Ethernet Port (LAN)
-Laptops connect wirelessly
-
-WIRELESS ROUTER CONFIGURATION:
-------------------------------
-1. Click Wireless Router → Config tab
-
-2. Wireless Settings:
-   - SSID: CampusWiFi
-   - Security Mode: WPA2-PSK
-   - PSK Password: wifi@1234
-   - Click Save Settings
-
-3. DHCP Settings (verify):
-   - DHCP: Enabled
-   - Start IP: 192.168.0.100
-   - Maximum Users: 50
-   - Click Save Settings
-
-LAPTOP CONFIGURATION:
---------------------
-For each laptop:
-
-1. Physical tab (if needed):
-   - Turn off laptop
-   - Remove Ethernet module
-   - Install WPC300N wireless module
-   - Turn on laptop
-
-2. Connect to WiFi:
-   - Desktop → PC Wireless
-   - Connect tab
-   - Select "CampusWiFi"
-   - Click Connect
-   - Enter password: wifi@1234
-   - Click OK
-
-3. Verify IP:
-   - Desktop → Command Prompt
-   - ipconfig
-   Should get IP like 192.168.0.101
-
-PC CONFIGURATION:
-----------------
-1. Desktop → IP Configuration
-2. Select DHCP
-3. Click Renew
-4. Should get IP like 192.168.0.102
-
-TEST CONNECTIVITY:
------------------
-Laptop0>ping 192.168.0.102  (ping PC)
-Laptop0>ping 192.168.0.103  (ping Laptop1)
-PC>ping 192.168.0.101       (ping Laptop0)
-
-===============================================================================
-
-TASK 3: IOT NETWORK CONFIGURATION
-===============================================================================
-
-TOPOLOGY SETUP:
----------------
-Devices: Home Gateway (IoT Gateway), Smart Light (IoT Device), Tablet
-
-CONNECTIONS:
-------------
-Home Gateway connects wirelessly to existing Wireless Router
-Smart Light connects to Home Gateway (wirelessly)
-Tablet connects to Home Gateway (wirelessly)
-
-HOME GATEWAY CONFIGURATION:
---------------------------
-1. Click Home Gateway → Config tab
-
-2. Wireless Settings:
-   - SSID: SmartCampus
-   - Security: WPA2-PSK
-   - Password: wifi@1234
-   - Mode: Access Point
-   - Click Save Settings
-
-3. Connect to Campus Network:
-   - Go to Internet/WAN Settings
-   - Connection Type: Wireless
-   - SSID: CampusWiFi
-   - Security: WPA2-PSK
-   - Password: wifi@1234
-   - Click Connect
-
-4. DHCP Settings:
-   - Enable DHCP Server
-   - Start IP: 10.0.0.100
-   - Maximum Users: 20
-   - Click Save Settings
-
-SMART LIGHT CONFIGURATION:
--------------------------
-1. Click Smart Light → Config tab
-
-2. Wireless Connection:
-   - SSID: SmartCampus
-   - Security: WPA2-PSK
-   - Password: wifi@1234
-   - Click Connect
-
-3. IoT Settings:
-   - Device Name: SmartLight1
-   - Device Type: Light
-   - Gateway IP: 10.0.0.1
-   - Click Register
-
-TABLET CONFIGURATION:
---------------------
-1. Click Tablet → Config tab
-
-2. Wireless Connection:
-   - SSID: SmartCampus
-   - Security: WPA2-PSK
-   - Password: wifi@1234
-   - Click Connect
-
-3. Install IoT Monitor App:
-   - Desktop → Apps
-   - Click IoT Monitor
-   - Allow permissions
-
-4. Configure IoT Monitor:
-   - Click "Add Device"
-   - Device Name: SmartLight1
-   - Device IP: [Smart Light IP]
-   - Device Type: Light
-   - Click Save
-
-5. Control Light:
-   - Click on SmartLight1 in device list
-   - Toggle ON/OFF button
-   - Light should respond (color change)
-
-VERIFICATION:
-------------
-From Tablet:
-- Open IoT Monitor App
-- Click SmartLight1
-- Press ON - light should turn ON (yellow/white)
-- Press OFF - light should turn OFF (dark)
-
-From Smart Light:
-- Observe physical state change
-- Verify connection status
-
-
-
+---
