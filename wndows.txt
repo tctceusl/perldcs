@@ -1,655 +1,521 @@
-/////ceaser////
+//switch configuration 
 
 
+Basic   Switch  setup
 
-public class CaesarCipher {
+enable/en
+conf t
+hostname sw0
+banner ?
+banner motd ?
 
-    public static String encrypt(String plaintext, int shift) {
-        StringBuilder ciphertext = new StringBuilder();
+banner motd $
+*************************
+only authorized users allowsed
+**************************
+$
 
-        for (int i = 0; i < plaintext.length(); i++) {
-            char ch = plaintext.charAt(i);
 
-            if (Character.isLetter(ch)) {
-                char base = Character.isLowerCase(ch) ? 'a' : 'A';
-                ch = (char) ((ch - base + shift) % 26 + base);
-            }
 
-            ciphertext.append(ch);
-        }
+Line console password
+(switch0) 
 
-        return ciphertext.toString();
-    }
+line con 0
+password cisco@1234
+login
 
-    public static String decrypt(String ciphertext, int shift) {
-        return encrypt(ciphertext, 26 - shift);
-    }
+user privilage mode password
+(switch0)
 
-    public static void main(String[] args) {
-        String plaintext = "Hello, World!";
-        int shift = 3;
+enable secret switch@1234
 
-        String encryptedText = encrypt(plaintext, shift);
-        String decryptedText = decrypt(encryptedText, shift);
 
-        System.out.println("Plaintext: " + plaintext);
-        System.out.println("Encrypted: " + encryptedText);
-        System.out.println("Decrypted: " + decryptedText);
-    }
-}
+//vlan configuration
 
 
+**Switch0
 
+en
+conf t
 
-//////mono////
+vlan 10
+name HR
 
+vlan 20
+name IT
 
+int Fa0/1
+switchport mode access
+switchport access vlan 10
 
-public class MonoalphabeticCipher {
+int Fa0/2
+switchport mode access
+switchport access vlan 10
 
-    public static String encrypt(String plaintext, String key) {
-        StringBuilder ciphertext = new StringBuilder();
+int Fa0/3
+switchport mode access
+switchport access vlan 20
 
-        for (int i = 0; i < plaintext.length(); i++) {
-            char ch = plaintext.charAt(i);
+int Fa0/4
+switchport mode access
+switchport access vlan 20
 
-            if (Character.isLetter(ch)) {
-                char base = Character.isLowerCase(ch) ? 'a' : 'A';
-                int offset = ch - base;
-                char encryptedChar = key.charAt(offset);
-                ciphertext.append(Character.isLowerCase(ch) ? Character.toLowerCase(encryptedChar) : encryptedChar);
-            } else {
-                ciphertext.append(ch);
-            }
-        }
+int Fa0/5
+switchport mode trunk
+ 
+ 
+ 
+ **Router0
 
-        return ciphertext.toString();
-    }
+en
+conf t
 
-    
-    public static String decrypt(String ciphertext, String key) {
-        StringBuilder plaintext = new StringBuilder();
+int Fa0/0
+no shutdown
 
-        for (int i = 0; i < ciphertext.length(); i++) {
-            char ch = ciphertext.charAt(i);
+int Fa0/0.10
+encapsulation dot1q 10
+ip add 192.168.1.1 255.255.255.0
 
-            if (Character.isLetter(ch)) {
-                char base = Character.isLowerCase(ch) ? 'a' : 'A';
-                int index = key.indexOf(Character.toLowerCase(ch));
-                char decryptedChar = (char) (base + index);
-                plaintext.append(Character.isLowerCase(ch) ? Character.toLowerCase(decryptedChar) : decryptedChar);
-            } else {
-                plaintext.append(ch);
-            }
-        }
+int Fa0/0.20
+encapsulation dot1q 20
+ip add 192.168.2.2 255.255.255.0
 
-        return plaintext.toString();
-    }
 
-    public static void main(String[] args) {
-        String plaintext = "Hello, World!";
-        String key = "QWERTYUIOPASDFGHJKLZXCVBNM";
 
-        String encryptedText = encrypt(plaintext, key);
-        String decryptedText = decrypt(encryptedText, key);
 
-        System.out.println("Plaintext: " + plaintext);
-        System.out.println("Encrypted: " + encryptedText);
-        System.out.println("Decrypted: " + decryptedText);
-    }
-}
+ 
 
 
+//DHCP with router 
 
+---Router0--
 
+en
+conf t
 
+interface Gig0/0
+ip add 192.168.1.1 255.255.255.0
+no sh 
+exit
 
-//////poly////
+interface Gig0/1
+ip add 192.168.2.1 255.255.255.0
+no sh 
+exit
 
+ip dhcp excluded-address 192.168.1.1
+ip dhcp excluded-address 192.168.2.1
 
+ip dhcp pool Network-1
+network 192.168.1.0 255.255.255.0
+default-router 192.168.1.1
+dns-server 8.8.8.8
 
+ip dhcp pool Network-2
+network 192.168.2.0 255.255.255.0
+default-router 192.168.2.1
+dns-server 8.8.8.8
 
+ 
+ 
+ 
+ //ftp configuration
+ 
+**router
+enable
+configure terminal
 
+hostname R1
 
-public class PolyalphabeticCipher {
+interface g0/0
+ip address 192.168.1.1 255.255.255.0
+no shutdown
+exit
 
-    public static String encrypt(String plaintext, String keyword) {
-        StringBuilder ciphertext = new StringBuilder();
-        plaintext = plaintext.toUpperCase();
-        keyword = keyword.toUpperCase();
+end
+write memory 
 
-        int keywordIndex = 0;
-        for (char ch : plaintext.toCharArray()) {
-            if (Character.isLetter(ch)) {
-                int shift = keyword.charAt(keywordIndex) - 'A';
-                char encryptedChar = (char) ((ch - 'A' + shift) % 26 + 'A');
-                ciphertext.append(encryptedChar);
+ 
+**switch
+enable
+configure terminal
 
-                keywordIndex = (keywordIndex + 1) % keyword.length();
-            } else {
-                ciphertext.append(ch);
-            }
-        }
+hostname S1
 
-        return ciphertext.toString();
-    }
+interface vlan 1
+ip address 192.168.1.3 255.255.255.0
+no shutdown
+exit
 
-    public static String decrypt(String ciphertext, String keyword) {
-        StringBuilder plaintext = new StringBuilder();
-        ciphertext = ciphertext.toUpperCase();
-        keyword = keyword.toUpperCase();
+ip default-gateway 192.168.1.1
 
-        int keywordIndex = 0;
-        for (char ch : ciphertext.toCharArray()) {
-            if (Character.isLetter(ch)) {
-                int shift = keyword.charAt(keywordIndex) - 'A';
-                char decryptedChar = (char) ((ch - 'A' - shift + 26) % 26 + 'A');
-                plaintext.append(decryptedChar);
+end
+write memory
 
-                keywordIndex = (keywordIndex + 1) % keyword.length();
-            } else {
-                plaintext.append(ch);
-            }
-        }
 
-        return plaintext.toString();
-    }
+**dns server 
 
-    public static void main(String[] args) {
-        String plaintext = "HELLO";
-        String keyword = "KEY";
+IP Address: 192.168.1.2
+Subnet Mask: 255.255.255.0
+Default Gateway: 192.168.1.1
+DNS Server: 192.168.1.2
 
-        String encryptedText = encrypt(plaintext, keyword);
-        String decryptedText = decrypt(encryptedText, keyword);
+Services → DNS → Turn ON DNS
 
-        System.out.println("Plaintext: " + plaintext);
-        System.out.println("Keyword: " + keyword);
-        System.out.println("Encrypted: " + encryptedText);
-        System.out.println("Decrypted: " + decryptedText);
-    }
-}
+**pc
 
+IP Address: 192.168.1.10
+Subnet Mask: 255.255.255.0
+Default Gateway: 192.168.1.1
+DNS Server: 192.168.1.2
 
+**check ping 192.168.1.2
 
 
 
 
-/////playFarie ///////
+//dns server 
 
 
+**ROUTER CONFIGURATION
+enable
+configure terminal
 
+! Set hostname
+hostname R1
 
+! Configure Network 1
+interface g0/0
+ip address 192.168.10.1 255.255.255.0
+no shutdown
+exit
 
-public class PlayfairCipher {
+! Configure Network 2
+interface g0/1
+ip address 192.168.20.1 255.255.255.0
+no shutdown
+exit
 
-    static char[][] matrix = new char[5][5];
+end
+write memory
 
-    static void generateMatrix(String key) {
-        key = key.toUpperCase().replace("J", "I");
-        boolean[] used = new boolean[26];
-        int k = 0;
 
-        for (int i = 0; i < key.length(); i++) {
-            char ch = key.charAt(i);
-            if (!used[ch - 'A']) {
-                matrix[k / 5][k % 5] = ch;
-                used[ch - 'A'] = true;
-                k++;
-            }
-        }
+**switch 
 
-        for (char ch = 'A'; ch <= 'Z'; ch++) {
-            if (ch != 'J' && !used[ch - 'A']) {
-                matrix[k / 5][k % 5] = ch;
-                used[ch - 'A'] = true;
-                k++;
-            }
-        }
-    }
+enable
+configure terminal
 
-    static String encrypt(String text) {
-        text = text.toUpperCase().replace("J", "I");
-        String result = "";
+hostname S1
 
-        for (int i = 0; i < text.length(); i += 2) {
-            char a = text.charAt(i);
-            char b = (i + 1 < text.length()) ? text.charAt(i + 1) : 'X';
+interface vlan 1
+ip address 192.168.10.5 255.255.255.0
+no shutdown
+exit
 
-            int r1 = 0, c1 = 0, r2 = 0, c2 = 0;
+ip default-gateway 192.168.10.1
 
-            for (int r = 0; r < 5; r++) {
-                for (int c = 0; c < 5; c++) {
-                    if (matrix[r][c] == a) { r1 = r; c1 = c; }
-                    if (matrix[r][c] == b) { r2 = r; c2 = c; }
-                }
-            }
+end
+write memory
 
-            if (r1 == r2) { // Same row
-                result += matrix[r1][(c1 + 1) % 5];
-                result += matrix[r2][(c2 + 1) % 5];
-            }
-            else if (c1 == c2) { // Same column
-                result += matrix[(r1 + 1) % 5][c1];
-                result += matrix[(r2 + 1) % 5][c2];
-            }
-            else { // Rectangle rule
-                result += matrix[r1][c2];
-                result += matrix[r2][c1];
-            }
-        }
-        return result;
-    }
 
+**dns server  configure 
 
+IP Address: 192.168.10.2
+Subnet Mask: 255.255.255.0
+Default Gateway: 192.168.10.1
+DNS Server: 192.168.10.2
 
+Services → DNS → ON
 
-static String decrypt(String cipherText) {
-    cipherText = cipherText.toUpperCase().replace("J", "I");
-    String result = "";
+add record 
 
-    for (int i = 0; i < cipherText.length(); i += 2) {
-        char a = cipherText.charAt(i);
-        char b = cipherText.charAt(i + 1);
+**dns secondary server 
 
-        int r1 = 0, c1 = 0, r2 = 0, c2 = 0;
+IP Address: 192.168.20.2
+Subnet Mask: 255.255.255.0
+Default Gateway: 192.168.20.1
+DNS Server: 192.168.20.2
 
-        
-        for (int r = 0; r < 5; r++) {
-            for (int c = 0; c < 5; c++) {
-                if (matrix[r][c] == a) { r1 = r; c1 = c; }
-                if (matrix[r][c] == b) { r2 = r; c2 = c; }
-            }
-        }
 
-        if (r1 == r2) { 
-            result += matrix[r1][(c1 - 1 + 5) % 5];
-            result += matrix[r2][(c2 - 1 + 5) % 5];
-        }
-        else if (c1 == c2) { 
-            result += matrix[(r1 - 1 + 5) % 5][c1];
-            result += matrix[(r2 - 1 + 5) % 5][c2];
-        }
-        else { 
-            result += matrix[r1][c2];
-            result += matrix[r2][c1];
-        }
-    }
+**pc 
+IP Address: 192.168.10.10
+Subnet Mask: 255.255.255.0
+Default Gateway: 192.168.10.1
+DNS Server: 192.168.10.2
 
-    return result;
-}
+bing......
 
-    public static void main(String[] args) {
-        String key = "KEYWORD";
-        String plaintext = "HELLO";
 
-        generateMatrix(key);
-        String cipher = encrypt(plaintext);
 
-        System.out.println("Plaintext: " + plaintext);
-        System.out.println("Encrypted: " + cipher);
-    }
-}
 
+//bgp
 
+------BGP Configuration-----
 
+Router0
 
+en
+conf t
+router bgp 35
+bgp router-id 3.3.3.3
+neighbor 10.10.10.2 remote-as 20
+neighbor 20.20.20.2 remote-as 50
+network 10.10.10.0 mask 255.255.255.252
+network 20.20.20.0 mask 255.255.255.252
 
 
+------BGP Configuration-----
 
+Router1
 
+en
+conf t
+router bgp 20
+bgp router-id 1.1.1.1
+neighbor 10.10.10.1 remote-as 35
+network 10.10.10.0 mask 255.255.255.252
+network 192.168.10.0 mask 255.255.255.0
 
-/////RailFence ////////
 
+------BGP Configuration-----
 
+Router2
 
+en
+conf t
+router bgp 50
+bgp router-id 2.2.2.2
+neighbor 20.20.20.1 remote-as 35
+network 20.20.20.0 mask 255.255.255.252
+network 192.168.20.0 mask 255.255.255.0
 
 
-public class RailFenceCipher {
 
-    
-    public static String encrypt(String plaintext, int rails) {
-        char[][] railMatrix = new char[rails][plaintext.length()];
-        boolean down = false;
-        int row = 0, col = 0;
 
-       
-        for (int i = 0; i < rails; i++) {
-            for (int j = 0; j < plaintext.length(); j++) {
-                railMatrix[i][j] = '\0';
-            }
-        }
 
-       
-        for (char ch : plaintext.toCharArray()) {
-            railMatrix[row][col] = ch;
+//osfp 
 
-       
-            if (row == 0 || row == rails - 1) {
-                down = !down;
-            }
 
-           
-            if (down) {
-                row++;
-            } else {
-                row--;
-            }
+--------Router0-----
 
-            col++;
-        }
+en
+conf t
 
-       
-        StringBuilder ciphertext = new StringBuilder();
-        for (int i = 0; i < rails; i++) {
-            for (int j = 0; j < plaintext.length(); j++) {
-                if (railMatrix[i][j] != '\0') {
-                    ciphertext.append(railMatrix[i][j]);
-                }
-            }
-        }
+interface Gig0/1
+ip address 192.168.10.1 255.255.255.0
+no shutdown
+exit
 
-        return ciphertext.toString();
-    }
+interface Gig0/0
+ip address 10.0.0.1 255.255.255.252
+no shutdown 
+exit
 
-   
-    public static String decrypt(String ciphertext, int rails) {
-        char[][] railMatrix = new char[rails][ciphertext.length()];
-        boolean down = false;
-        int row = 0, col = 0;
+interface Gig0/2
+ip address 10.0.0.9 255.255.255.252
+no shutdown
+exit
 
-        
-        for (int i = 0; i < rails; i++) {
-            for (int j = 0; j < ciphertext.length(); j++) {
-                railMatrix[i][j] = '\0';
-            }
-        }
+router ospf 1
+router-id 1.1.1.1
+network 192.168.10.1 0.0.0.0 area 0
+network 10.0.0.1 0.0.0.0 area 0
+network 10.0.0.9 0.0.0.0 area 0
 
-       
-        for (int i = 0; i < ciphertext.length(); i++) {
-            railMatrix[row][col] = '*';
 
-           
-            if (row == 0 || row == rails - 1) {
-                down = !down;
-            }
 
-            
-            if (down) {
-                row++;
-            } else {
-                row--;
-            }
+--------Router1-----
 
-            col++;
-        }
+en
+conf t
 
-        
-        int index = 0;
-        for (int i = 0; i < rails; i++) {
-            for (int j = 0; j < ciphertext.length(); j++) {
-                if (railMatrix[i][j] == '*') {
-                    railMatrix[i][j] = ciphertext.charAt(index);
-                    index++;
-                }
-            }
-        }
+interface Gig0/0
+ip address 10.0.0.2 255.255.255.252
+no shutdown
+exit
 
-       
-        StringBuilder plaintext = new StringBuilder();
-        row = 0;
-        col = 0;
-        for (int i = 0; i < ciphertext.length(); i++) {
-            plaintext.append(railMatrix[row][col]);
+interface Gig0/1
+ip address 10.0.0.5 255.255.255.252
+no shutdown 
+exit
 
-           
-            if (row == 0 || row == rails - 1) {
-                down = !down;
-            }
+router ospf 1
+router-id 2.2.2.2
+network 10.0.0.2 0.0.0.0 area 0
+network 10.0.0.5 0.0.0.0 area 0
 
-            
-            if (down) {
-                row++;
-            } else {
-                row--;
-            }
 
-            col++;
-        }
 
-        return plaintext.toString();
-    }
+--------Router2-----
 
-    public static void main(String[] args) {
-        String plaintext = "HELLO";
-        int rails = 3;
+en
+conf t
 
-        String encryptedText = encrypt(plaintext, rails);
-        String decryptedText = decrypt(encryptedText, rails);
+interface Gig0/1
+ip address 192.168.20.1 255.255.255.0
+no shutdown
+exit
 
-        System.out.println("Plaintext: " + plaintext);
-        System.out.println("Rails: " + rails);
-        System.out.println("Encrypted: " + encryptedText);
-        System.out.println("Decrypted: " + decryptedText);
-    }
-}
+interface Gig0/0
+ip address 10.0.0.6 255.255.255.252
+no shutdown 
+exit
 
+interface Gig0/2
+ip address 10.0.0.10 255.255.255.252
+no shutdown
+exit
 
+router ospf 1
+router-id 3.3.3.3
+network 192.168.20.1 0.0.0.0 area 0
+network 10.0.0.6 0.0.0.0 area 0
+network 10.0.0.10 0.0.0.0 area 0
 
-//////onetimepad///////////
 
 
-public class OneTimePadCipher {
 
-    
-    public static String encrypt(String plaintext, String key) {
-        StringBuilder ciphertext = new StringBuilder();
 
-        for (int i = 0; i < plaintext.length(); i++) {
-            char ch = plaintext.charAt(i);
+//rip
 
-            char encryptedChar = (char) (ch ^ key.charAt(i));
-            ciphertext.append(encryptedChar);
-        }
+Router0
 
-        return ciphertext.toString();
-    }
+en
+conf t
+router rip
+version 2
+network 60.0.0.1
+network 50.0.0.1
+network 40.0.0.2
+no auto-summary
+exit
 
-    public static String decrypt(String ciphertext, String key) {
-        return encrypt(ciphertext, key);
-    }
 
-    public static void main(String[] args) {
-        String plaintext = "Hello, World!";
-        String key = "RANDOMKEY123456789"; 
+Router1
 
-        if (plaintext.length() != key.length()) {
-            System.out.println("Plaintext and key must have the same length.");
-            return;
-        }
+en
+conf t
+router rip
+version 2
+network 50.0.0.2
+network 8.0.0.1
+network 20.0.0.2
+no auto-summary
+exit
+ 
+ **has to do for all routers 
+ 
+ 
+ 
+// NAT
 
-        String encryptedText = encrypt(plaintext, key);
-        String decryptedText = decrypt(encryptedText, key);
 
-        System.out.println("Plaintext: " + plaintext);
-        System.out.println("Key:       " + key);
-        System.out.println("Encrypted: " + encryptedText);
-        System.out.println("Decrypted: " + decryptedText);
-    }
-}
+**Router Configuration (NAT Inside & Outside)
 
 
+enable
+configure terminal
 
+! Set host name
+hostname R1
 
-////////Columnar////////
+! Configure Inside interface
+interface g0/0
+ip address 192.168.1.1 255.255.255.0
+ip nat inside   ! Mark this as NAT inside interface
+no shutdown
+exit
 
+! Configure Outside interface
+interface g0/1
+ip address 203.0.113.2 255.255.255.0
+ip nat outside  ! Mark this as NAT outside interface
+no shutdown
+exit
 
-import java.util.Arrays;
 
-public class ColumnarTranspositionCipher {
 
-    public static String encrypt(String plaintext, String keyword) {
+**static nat 
 
-        plaintext = plaintext.replaceAll("\\s+", "").toUpperCase();
-        keyword = keyword.toUpperCase();
+! Map PC1 192.168.1.10 → 203.0.113.10
+ip nat inside source static 192.168.1.10 203.0.113.10
 
-        int keyLength = keyword.length();
 
-        int[] keyOrder = new int[keyLength];
+**Dynamic Nat 
 
-        char[] sortedKeyword = keyword.toCharArray();
-        Arrays.sort(sortedKeyword);
+! Create a pool of public IPs for NAT
+ip nat pool MY_POOL 203.0.113.20 203.0.113.25 netmask 255.255.255.0
 
-     
+! Define which internal network can use NAT
+access-list 1 permit 192.168.1.0 0.0.0.255
 
-        for (int i = 0; i < keyLength; i++) {
-            char ch = sortedKeyword[i];
+! Apply dynamic NAT
+ip nat inside source list 1 pool MY_POOL
 
-            keyOrder[i] = keyword.indexOf(ch);
 
-            keyword = keyword.replace(ch, ' ');
-        }
 
-        int rows = (int) Math.ceil((double) plaintext.length() / keyLength);
+//remote login 
 
-        char[][] transpositionGrid = new char[rows][keyLength];
 
-        int index = 0;
+Router1 (HR Router) SSH Configuration
 
-        for (int col = 0; col < keyLength; col++) {
-            for (int row = 0; row < rows; row++) {
-                if (index < plaintext.length()) {
-                    transpositionGrid[row][keyOrder[col]] = plaintext.charAt(index);
-                    index++;
-                }
-            }
-        }
+enable
+configure terminal
 
-        StringBuilder ciphertext = new StringBuilder();
+! Set router hostname
+hostname Router1
 
-        for (int col : keyOrder) {
-            for (int row = 0; row < rows; row++) {
-                if (transpositionGrid[row][col] != '\0') {
-                    ciphertext.append(transpositionGrid[row][col]);
-                }
-            }
-        }
+! Set domain name (required for SSH key generation)
+ip domain-name techlearn.local
 
-        return ciphertext.toString();
-    }
+! Create local user for SSH login
+username root privilege 15 secret cs3113
 
+! Enable SSH version 2
+ip ssh version 2
 
-    public static String decrypt(String ciphertext, String keyword) {
+! Generate RSA key pair for SSH
+! 1024-bit is enough for labs
+crypto key generate rsa modulus 1024
 
-        ciphertext = ciphertext.replaceAll("\\s+", "").toUpperCase();
-        keyword = keyword.toUpperCase();
+! Configure VTY lines for SSH only (disable Telnet)
+line vty 0 4
+transport input ssh        ! Only allow SSH
+login local                ! Use local username/password
+exit
 
-        int keyLength = keyword.length();
+! Optional: set timeout and max attempts
+ip ssh time-out 60
+ip ssh authentication-retries 3
 
-        int rows = (int) Math.ceil((double) ciphertext.length() / keyLength);
+end
+write memory
 
-        int[] keyOrder = new int[keyLength];
-        char[] sortedKeyword = keyword.toCharArray();
-        Arrays.sort(sortedKeyword);
 
-        for (int i = 0; i < keyLength; i++) {
-            char ch = sortedKeyword[i];
-            keyOrder[i] = keyword.indexOf(ch);
-            keyword = keyword.replace(ch, ' ');
-        }
+**Router2 Configuration (SSH Client)
 
-        char[][] transpositionGrid = new char[rows][keyLength];
+enable
+configure terminal
 
-        int index = 0;
+! Set hostname for Router2
+hostname Router2
 
-       
-        for (int col : keyOrder) {
-            for (int row = 0; row < rows; row++) {
-                if (index < ciphertext.length()) {
-                    transpositionGrid[row][col] = ciphertext.charAt(index);
-                    index++;
-                }
-            }
-        }
+! Configure IP address if not set
+interface g0/0
+ip address 192.168.1.2 255.255.255.0
+no shutdown
+exit
 
-        StringBuilder plaintext = new StringBuilder();
+! Set default route towards Router1 (optional)
+ip route 0.0.0.0 0.0.0.0 192.168.1.1
 
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < keyLength; col++) {
-                if (transpositionGrid[row][col] != '\0') {
-                    plaintext.append(transpositionGrid[row][col]);
-                }
-            }
-        }
+end
+write memory
 
-        return plaintext.toString();
-    }
 
 
-    public static void main(String[] args) {
+**Verify SSH from Router2 to Router1
 
-        String plaintext = "HELLO WORLD";
-        String keyword = "KEY";
-
-        String encryptedText = encrypt(plaintext, keyword);
-        String decryptedText = decrypt(encryptedText, keyword);
-
-        System.out.println("Plaintext: " + plaintext);
-        System.out.println("Keyword: " + keyword);
-        System.out.println("Encrypted: " + encryptedText);
-        System.out.println("Decrypted: " + decryptedText);
-    }
-}
-
-//////////RSA/////////
-
-
-
- class RSA {
-
-    private static long modPow(long a, long b, long m) {
-        long result = 1;
-        a %= m;
-
-        while (b > 0) {
-            if ((b & 1) == 1) {
-                result = (result * a) % m;
-            }
-            b >>= 1;
-            a = (a * a) % m;
-        }
-
-        return result;
-    }
-
-    public static long encrypt(long plaintext, long e, long n) {
-        return modPow(plaintext, e, n);
-    }
-
-    public static long decrypt(long ciphertext, long d, long n) {
-        return modPow(ciphertext, d, n);
-    }
-
-    public static void main(String[] args) {
-        long p = 61; 
-        long q = 53; 
-        long n = p * q;
-        long phi = (p - 1) * (q - 1);
-        long e = 17; 
-        long d = 2753; 
-
-        
-        long plaintext = 1234;
-        long ciphertext = encrypt(plaintext, e, n);
-        long decryptedText = decrypt(ciphertext, d, n);
-
-        System.out.println("Plaintext: " + plaintext);
-        System.out.println("Ciphertext: " + ciphertext);
-        System.out.println("Decrypted: " + decryptedText);
-    }
-}
-
-
-
-
-
-
+! From Router2 CLI
+ssh -l root 192.168.1.1
