@@ -1,191 +1,906 @@
-Got it — here is everything merged into ONE continuous answer (single text block) exactly like you’d put inside a .txt file 👇
 
 
----
 
-CS3113 Practical Answers
 
 
----
 
-Q1 – Subnetting (192.168.100.0/24 using VLSM)
+% Family  tree 1 
 
-VLAN 20 Students (80 hosts)
-Subnet ID: 192.168.100.0/25
-Mask: 255.255.255.128
-Usable: 192.168.100.1 – 192.168.100.126
-Broadcast: 192.168.100.127
 
-VLAN 10 Admin (40 hosts)
-Subnet ID: 192.168.100.128/26
-Mask: 255.255.255.192
-Usable: 192.168.100.129 – 192.168.100.190
-Broadcast: 192.168.100.191
+male(fedric).
+male(zelenski).
+male(prigozhin).
+male(daniel).
+male(thomas).
+male(bose).
 
-WLAN Network (25 hosts)
-Subnet ID: 192.168.100.192/27
-Mask: 255.255.255.224
-Usable: 192.168.100.193 – 192.168.100.222
-Broadcast: 192.168.100.223
+female(linda).
+female(barbara).
+female(ella).
+female(elizabath).
 
-VLAN 30 Servers (20 hosts)
-Subnet ID: 192.168.100.224/27
-Mask: 255.255.255.224
-Usable: 192.168.100.225 – 192.168.100.254
-Broadcast: 192.168.100.255
+parent_of(fedric , ella).
+parent_of(fedric , elizabath).
+parent_of(linda , ella ).
+parent_of(linda , elizabath ).
+parent_of(zelenski , daniel ).
+parent_of(barbara , daniel ).
+parent_of( prigozhin, thomas ).
+parent_of( ella, thomas ).
+parent_of( elizabath, bose ).
+parent_of( daniel , bose ).
 
 
----
 
-SW1 VLAN Configuration
+father_of(Father ,  Child) :-
+	parent_of(Father ,Child),
+	male(Father).
 
-enable
-conf t
-vlan 10
-vlan 20
-vlan 30
 
-int fa0/1
-switchport mode access
-switchport access vlan 10
+mother_of(Mother ,  Child) :- 
+	parent_of(Mother ,  Child) , 
+	female(Mother).
 
-int fa0/2
-switchport mode access
-switchport access vlan 20
 
-int fa0/3
-switchport mode access
-switchport access vlan 30
+grandfather_of(Grandfather , Child) :- 
+	parent_of(Father , Child) , 
+	parent_of(Grandfather , Father),
+	male(Grandfather).
 
-int fa0/24
-switchport mode trunk
 
+grandmother_of(Grandmother ,  Child) :- 
+	parent_of(Mother , Child) , 
+	parent_of(Grandmother , Mother),
+	female(Grandmother).
+	
 
----
 
-Router R1 Inter-VLAN Routing (Router-on-a-Stick)
+sister_of(Sister ,  Person) :- 
+	parent_of(X , Sister) ,
+	parent_of(X , Person) ,
+	female(Sister) , 
+	Sister \= Person.
 
-conf t
-int g0/0
-no shutdown
 
-int g0/0.10
-encapsulation dot1Q 10
-ip address 192.168.100.129 255.255.255.192
+aunt_of(Aunt ,  Person ) :- 
+	parent_of(X , Person),
+	sister_of(Aunt , X).
+	
 
-int g0/0.20
-encapsulation dot1Q 20
-ip address 192.168.100.1 255.255.255.128
+uncle_of(Y , Person) :- 
+	parent_of(X, Person) ,
+	parent_of(Z ,X) ,
+	parent_of(Z ,Y) ,
+	male(Y), 
+	X \= Y.
 
-int g0/0.30
-encapsulation dot1Q 30
-ip address 192.168.100.225 255.255.255.224
 
 
----
 
-DHCP on SRV1
 
-Create DHCP pools:
 
-VLAN10 → 192.168.100.128/26 (exclude 192.168.100.129)
-VLAN20 → 192.168.100.0/25 (exclude 192.168.100.1)
-VLAN30 → 192.168.100.224/27 (exclude 192.168.100.225)
-WLAN → 192.168.100.192/27 (exclude 192.168.100.193)
 
+% family  tree 2  
 
----
 
-DNS Configuration on SRV1
+mother( ann , henry ).
+mother( ann , mary).
+mother( jane, mark).
+mother( jane, francis).
+mother( annette, jonathan).
+mother( mary, bill).
+mother( janice , louise).
+mother( lucy, janet).
+mother( louise, caroline).
+mother( caroline, david).
+mother( caroline, janet).
 
-A Record:
-www.fastech.tc.lk → 192.168.100.226
+father( henry , jonathan ).
+father( john, mary).
+father( francis, william).
+father( francis, louise).
+father( john, mark).
+father( gavin, lucy).
+father( john, francis).
 
+parent( victoria , george ).
+parent( victoria , edward).
+parent( X, Y) :- mother(X,Y).
+parent( X,Y ) :- father(X,Y).
+parent( elizabeth, charles).
+parent( elizabeth, andrew).
 
----
+ancestor(X,Y) :- parent(X,Y).
+ancestor(X,Y) :- parent(X,Z) ,parent(Z,Y).
 
-WLAN Configuration
+child_of(A,B) :- parent(B,A).
+grandfather_of(A,B) :- father(A ,X) , parent(X,B).
+grandmother_of(A,B) :- mother(A ,X) , parent(X,B).
+great_grandfather_of(A,B) :- father(A ,X ) ,  grandfather_of(X,B).
 
-SSID: TechCampus-WiFi
-Security: WPA2-PSK
-Password: TCwifi123
-Gateway: 192.168.100.193
+? ancestor(luise ,X) .
 
+?trace.
 
----
+? ancestor(luise ,X) . 
 
-Q2 – Building B
+? notrace.
 
 
----
 
-SW2 Configuration
 
-vlan 40
 
-int fa0/1
-switchport mode access
-switchport access vlan 40
 
-int fa0/2
-switchport mode access
-switchport access vlan 20
+%%CA 03
 
-int fa0/24
-switchport mode trunk
+% sibling rule
+sibling(X, Y) :-
+    parent(P, X),
+    parent(P, Y),
+    X \= Y.
 
+% grandparent rule
+grandparent(G, C) :-
+    parent(G, P),
+    parent(P, C).
 
----
+% older rule
+older(X, Y) :-
+    age(X, AgeX),
+    age(Y, AgeY),
+    AgeX > AgeY.
 
-RIP Configuration on R2
+% list_ages rule
+list_ages([], []).
+list_ages([Person|Rest], [Age|Ages]) :-
+    age(Person, Age),
+    list_ages(Rest, Ages).
 
-conf t
-router rip
-version 2
-network 192.168.100.0
-no auto-summary
 
 
----
 
-OSPF Configuration on R1
 
-router ospf 1
-router-id 1.1.1.1
-network 192.168.100.0 0.0.0.255 area 0
+% Facts: super(Supervisor, PhD_Student)
 
+super(daniel, lisa).
+super(daniel, stewie).
 
----
+super(lisa, peter).
+super(lisa, marge).
+super(lisa, maggie).
 
-Route Redistribution
+super(stewie, lois).
+super(stewie, peter).
 
-router ospf 1
-redistribute rip subnets
+super(lois, meg).
 
-router rip
-redistribute ospf 1 metric 2
+super(peter, brian).
 
+super(marge, chris).
+super(marge, bart).
 
----
 
-Static NAT Configuration
 
-ip nat inside source static 192.168.100.226 203.94.55.10
+supervisor_student( Supervisor ,  Student ) :- 
+	super(Supervisor  , Student ).
 
 
----
+joint_supervised(Student , Sup1 , Sup2) :-
+	super( Sup1 , Student) , 
+	super( Sup2 , Student),
+	Sup1 \= Sup2 .
 
-SSH Configuration on R1
 
-hostname R1
-ip domain-name fastech.local
-username admin secret cisco123
-crypto key generate rsa
-ip ssh version 2
+same_supervisor(Student1  ,  Student2 ,  Supervisor) :- 
+	super(Supervisor ,  Student1) ,
+	super(Supervisor ,  Student2) ,
+	Student1 \= Student2 .
 
-line vty 0 4
-transport input ssh
-login local
 
+same_academic_ancestor(Student1, Student2, CommonSup) :-
+    super(Sup1, Student1),
+    super(Sup2, Student2),
+    Sup1 \= Sup2,
+    super(CommonSup, Sup1),
+    super(CommonSup, Sup2),
+    Student1 \= Student2.
 
----
+
+
+
+
+
+
+
+%% flight
+
+flight(a,b).
+flight(b,c).
+flight(c,d).
+
+
+travel(X,Y) :-
+    flight(X,Y).
+
+travel(X,Z) :-
+    flight(X,Y) ,
+    flight(Y,Z).
+
+% only 2 flights allowed in this simple example
+
+
+reachable_from_b(City) :- 
+    flight(b, City).
+reachable_from_b(City) :- 
+    flight(b , Z) ,
+    flight(Z, City).
+
+
+
+
+
+
+
+%18/19
+
+start(square(1,1)).
+goal(square(9,9)).
+
+corridor(square(1,1), square(2,1)).
+corridor(square(2,1), square(3,1)).
+corridor(square(3,1), square(3,2)).
+corridor(square(3,2), square(3,3)).
+corridor(square(3,3), square(4,3)).
+corridor(square(4,3), square(5,3)).
+corridor(square(5,3), square(5,4)).
+corridor(square(5,4), square(5,5)).
+corridor(square(5,5), square(6,5)).
+corridor(square(6,5), square(7,5)).
+corridor(square(7,5), square(7,6)).
+corridor(square(7,6), square(8,6)).
+corridor(square(8,6), square(9,6)).
+corridor(square(9,6), square(9,9)).
+
+
+move(A ,B) :- corridor(A ,B).
+move(A ,B) :- corridor(B ,A).
+
+
+route(X,X,_ ,[X]) :- !.
+
+
+route(Current , Goal ,Visited , [Current | Path]) :-
+	move(Current , Next) ,
+	\+ member(Next ,  Visited) ,
+	route(Next , Goal ,[Next | Visited] ,Path).
+
+
+
+
+
+
+
+
+
+%%%%%Monkey Banana
+
+move(state(middle, onbox, middle, hasnot), grasp, state(middle, onbox, middle, has)).
+
+move(state(P, onfloor, P, H), climb, state(P, onbox, P, H)).
+
+move(state(P1, onfloor, P1, H), push(P1, P2), state(P2, onfloor, P2, H)).
+
+move(state(P1, onfloor, B, H), walk(P1, P2), state(P2, onfloor, B, H)).
+
+
+canget(state(_, _, _, has)). 
+canget(State1) :- 
+    move(State1, _, State2), 
+    canget(State2).
+
+	
+?canget(state(atdoor, onfloor, atwindow, hasnot), Steps).
+
+
+
+
+
+%Tower Hanoni
+
+
+move(1, Source, _, Target) :-
+    write('Move disk from '), write(Source), 
+    write(' to '), write(Target), nl.
+
+
+move(N, Source, Intermediate, Target) :-
+    N > 1,
+    M is N - 1,
+    move(M, Source, Target, Intermediate), 
+    move(1, Source, _, Target),             
+    move(M, Intermediate, Source, Target).  
+	
+	
+?- move(3, source, intermediate, target).
+
+
+
+
+
+%  Water Jug Problem
+
+move(state(X, Y), state(4, Y)) :- X < 4. 
+move(state(X, Y), state(X, 3)) :- Y < 3. 
+
+
+move(state(X, Y), state(0, Y)) :- X > 0.  
+move(state(X, Y), state(X, 0)) :- Y > 0. 
+
+
+move(state(X, Y), state(X1, Y1)) :-
+    X > 0,
+    Amount is min(X, 3 - Y),
+    X1 is X - Amount,
+    Y1 is Y + Amount.
+
+
+solve(state(2, _)). 
+solve(CurrentState) :-
+    move(CurrentState, NextState),
+    solve(NextState).
+	
+?- solve(state(8, 0, 0), []).
+
+
+
+
+
+%Queen Problem
+
+
+safe([]).
+
+safe([Queen | Others]) :-
+    safe(Others),
+    not_attack(Queen, Others, 1).
+
+
+not_attack(_, [], _).
+not_attack(Q, [Y|Others], Dist) :-
+    Q =\= Y,                         
+    Q =\= Y + Dist,                  
+    Q =\= Y - Dist,                 
+    NextDist is Dist + 1,
+    not_attack(Q, Others, NextDist).
+	
+	
+	
+solve(Queens) :-
+    permutation([1,2,3,4,5,6,7,8], Queens),
+    safe(Queens).
+	
+
+
+
+
+
+
+%Farmer, Tiger, Goat, Grass
+
+
+
+
+safe(state(F, T, G, Gr)) :-
+    (F = T ; T \= G),  
+    (F = G ; G \= Gr). 
+
+change(l, r).
+change(r, l).
+
+
+move(state(F1, T, G, Gr), state(F2, T, G, Gr)) :-
+    change(F1, F2), safe(state(F2, T, G, Gr)).
+
+move(state(F1, F1, G, Gr), state(F2, F2, G, Gr)) :-
+    change(F1, F2), safe(state(F2, F2, G, Gr)).
+
+move(state(F1, T, F1, Gr), state(F2, T, F2, Gr)) :-
+    change(F1, F2), safe(state(F2, T, F2, Gr)).
+
+move(state(F1, T, G, F1), state(F2, T, G, F2)) :-
+    change(F1, F2), safe(state(F2, T, G, F2)).
+
+
+
+solve(State, State, _, []) :- !. 
+
+solve(CurrentState, GoalState, Visited, [Move|Rest]) :-
+    move(CurrentState, NextState),
+    \+ member(NextState, Visited), 
+    solve(NextState, GoalState, [NextState|Visited], Rest).
+
+
+go :-
+    solve(state(l, l, l, l), state(r, r, r, r), [state(l, l, l, l)], Path),
+    write('problem solve: '), nl,
+    write(Path).
+
+
+?- go.
+
+
+
+
+
+%Missionaries , Cannibals
+is_safe(M, C) :-
+    
+    (M =:= 0 ; M >= C),
+    
+    MR is 3 - M,
+    CR is 3 - C,
+    (MR =:= 0 ; MR >= CR).
+
+
+move_allowed(1, 0).
+move_allowed(2, 0).
+move_allowed(0, 1).
+move_allowed(0, 2).
+move_allowed(1, 1).
+
+
+move(state(M1, C1, 0), state(M2, C2, 1)) :-
+    move_allowed(M_Move, C_Move),
+    M2 is M1 - M_Move,
+    C2 is C1 - C_Move,
+    M2 >= 0, C2 >= 0,
+    is_safe(M2, C2).
+
+
+move(state(M1, C1, 1), state(M2, C2, 0)) :-
+    move_allowed(M_Move, C_Move),
+    M2 is M1 + M_Move,
+    C2 is C1 + C_Move,
+    M2 =< 3, C2 =< 3,
+    is_safe(M2, C2).
+
+
+solve(state(0, 0, 1), _, []) :- 
+    write('achive goal! (0,0,1)'), nl, !.
+
+solve(CurrentState, Visited, [NextState | Rest]) :-
+    move(CurrentState, NextState),
+    \+ member(NextState, Visited),
+    solve(NextState, [NextState | Visited], Rest).
+
+
+go :-
+    InitialState = state(3, 3, 0),
+    solve(InitialState, [InitialState], Path),
+    write('Solving route: '), nl,
+    write(InitialState), write(' -> '), write(Path).
+
+
+
+
+
+%Pascal tree
+print_row(R, N) :-
+    N =< R,
+    pascal(R, N, V),
+    write(V), write('   '),
+    N1 is N + 1,
+    print_row(R, N1).
+print_row(_, _).
+
+
+print_spaces(S) :-
+    S > 0, write('  '),
+    S1 is S - 1,
+    print_spaces(S1).
+print_spaces(_).
+
+
+display_pascal(TotalRows, CurrentRow) :-
+    CurrentRow =< TotalRows,
+    Spaces is TotalRows - CurrentRow,
+    print_spaces(Spaces), 
+    print_row(CurrentRow, 1), 
+    nl,
+    NextRow is CurrentRow + 1,
+    display_pascal(TotalRows, NextRow).
+display_pascal(_, _).
+
+
+show_tree(R) :- display_pascal(R, 1).
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+%Prime Number
+is_prime(2).
+
+is_prime(P) :- 
+    P > 2, 
+    \+ has_factor(P, 2). 
+
+has_factor(N, F) :- 
+    N mod F =:= 0, !. 
+
+has_factor(N, F) :- 
+    F * F < N,         
+    NextF is F + 1, 
+    has_factor(N, NextF).
+
+
+
+%Prime Factor
+prime_factors(N, L) :- 
+    N > 1, 
+    find_factors(N, 2, L).
+
+find_factors(1, _, []) :- !.
+
+find_factors(N, F, [F|Tail]) :-
+    N mod F =:= 0, 
+    NextN is N // F,          
+    find_factors(NextN, F, Tail), !.
+
+find_factors(N, F, L) :-
+    NextF is F + 1,
+    find_factors(N, NextF, L).
+
+
+
+
+
+% gcd  
+gcd(X, 0 ,  X).
+
+gcd(X, Y , G) :- 
+	R is X mod Y , 
+	gcd(Y ,R ,G) .
+
+
+% coprime
+coprime(X  ,Y) :-
+	gcd(X ,Y ,1).
+
+
+
+
+
+
+%Mark System
+
+
+grade(Marks, 'A') :- Marks >= 75, !.
+
+grade(Marks, 'B') :- Marks >= 65, !.
+
+grade(Marks, 'C') :- Marks >= 55, !.
+
+grade(Marks, 'S') :- Marks >= 35, !.
+
+grade(_, 'Fail').
+	
+
+%Merge
+
+merge([], L2, L2) :- !.
+merge(L1, [], L1) :- !.
+merge([H1|T1], [H2|T2], [H1|SL]) :-
+    H1 =< H2, !,
+    merge(T1, [H2|T2], SL).
+merge([H1|T1], [H2|T2], [H2|SL]) :-
+    merge([H1|T1], T2, SL).
+
+
+%sum
+
+list_sum([], 0).
+list_sum([H|T], Sum) :- list_sum(T, S1), Sum is H + S1.
+
+find_mean(L, Mean) :-
+    list_sum(L, Total),
+    list_len(L, Count),
+    Count > 0,
+    Mean is Total / Count.
+	
+	
+%Delete x
+delete_x(X, [X|Tail], Tail).
+delete_x(X, [Head|Tail], [Head|Result]) :-
+    delete_x(X, Tail, Result).
+	
+	
+%add list last
+add_last(X, [], [X]).
+add_last(X, [Head|Tail], [Head|Result]) :-
+    add_last(X, Tail, Result).
+	
+	
+
+%  append  list  
+append([], List, List).
+
+append([Head|Tail1], List2, [Head|Tail3]) :-
+    append(Tail1, List2, Tail3).
+
+% List length 
+list_len([] , 0).
+list_len([_|T] , N) :-
+list_len(T ,N1) ,
+N is N1+1.
+
+%avarage 
+
+list_sum([], 0).
+list_sum([H|T], Sum) :- list_sum(T, S1), Sum is H + S1.
+find_mean(L, Mean) :-
+    list_sum(L, Total),
+    list_len(L, Count),
+    Count > 0,
+    Mean is Total / Count.
+
+
+%member
+is_member(X,[X|_]):-!.
+is_member(X,[_|T]):-is_member(X,T).
+
+%append two lists
+append_list([],L2,L2).
+append_list([X|L1],L2,[X|L3]):-append_list(L1,L2,L3).
+
+%insert element at end(via append)
+insert_end(L,X,NewL):-append_list(L,[X],NewL).
+
+%delete first occurrence
+delete_element(_,[],[]).
+delete_element(X,[X|L],L):-!.
+delete_element(X,[Y|L],[Y|L1]):-delete_element(X,L,L1).
+
+%last element
+last_element([X],X).
+last_element([_|T],X):-last_element(T,X).
+
+%reverse
+reverse_list([],[]).
+reverse_list([H|T],R):-reverse_list(T,RT),append(RT,[H],R).
+
+%palindrome
+palindrome([]).
+palindrome([_]).
+palindrome([H|T]):-append(Middle,[H],T),palindrome(Middle).
+
+%sort
+sort_list([],[]).
+sort_list([H|T],S):-sort_list(T,ST),insert(H,ST,S).
+insert(X,[],[X]).
+insert(X,[H|T],[X,H|T]):-X=<H.
+insert(X,[H|T],[H|R]):-X>H,insert(X,T,R).
+
+%is sorted
+is_sorted([]).
+is_sorted([_]).
+is_sorted([X,Y|T]):- X=<Y,is_sorted([Y|T]).
+
+%max element
+max_list([X],X).
+max_list([H|T],Max):-max_list(T,MaxT),(H>MaxT->Max=H;Max=MaxT).
+
+%min element
+min_list([X],X).
+min_list([H|T],Min):-min_list(T,MinT),(H<MinT->Min=H;Min=MaxT).
+
+%second element
+second_element([_,X|_],X).
+
+%remove first
+remove_first([_|T],T).
+
+%count occurrances
+count_occurrences([],_,0).
+count_occurrances([X|T],X,C):- count_occurrences(T,X,C1), C is C1+1.
+count_occurrances([H|T],X,C):- H\=X,count_occurrences(T,X,C).
+
+%max with cut operator
+max(X,Y,X):-X>=Y,!.
+max(_,Y,Y).
+
+
+%Maze puzzle
+
+solve(Exit, Exit, History, [Exit|History]).
+solve(Current, Exit, History, Path) :-
+    connected(Current, Next),
+    \+ member(Next, History),
+    solve(Next, Exit, [Current|History], Path).
+	
+
+
+
+%% Multipler 
+print_table(I , _ , M) :-
+	I > M , !.
+
+print_table(I , N , M) :-
+	Result  is  I * N ,
+	write(I) , write(' X ') , write(' N ') , write(' = ') , write(Result) , nl ,
+	NextI is  I+1 ,
+	print_table(NextI ,N , M).
+
+
+multi_table :-
+	write('Enter the N (multiplier) : '),
+	read(N) ,
+	write('Enter the M (limit) : '),
+	read(M) ,
+	print_table(1 , N , M).
+
+
+? multi_table.
+	
+
+
+%campus  travel  
+
+
+path(gate, admin, 100).
+path(admin, library, 50).
+path(admin, canteen, 70).
+path(library, canteen, 30).
+path(canteen, it_center, 60).
+path(it_center, fcbs, 80).
+path(library, lecture_hall_1, 40).
+path(lecture_hall_1, lecture_hall_2, 30).
+path(lecture_hall_2, fcbs, 90).
+path(gate, hostel_a, 150).
+path(hostel_a, hostel_b, 50).
+path(hostel_b, canteen, 100).
+
+connected(X, Y, D) :- path(X, Y, D).
+connected(X, Y, D) :- path(Y, X, D).
+
+travel(End, End, _, [End], 0).
+travel(Current, End, Visited, [Current|Path], TotalDist) :-
+    connected(Current, Next, Dist),
+    \+ member(Next, Visited), 
+    travel(Next, End, [Next|Visited], Path, RemainingDist),
+    TotalDist is Dist + RemainingDist.
+
+shortest_path(Start, End, BestPath, MinDist) :-
+    findall([P, D], travel(Start, End, [Start], P, D), AllPaths),
+    min_path(AllPaths, [BestPath, MinDist]).
+
+min_path([[P, D]], [P, D]).
+min_path([[P, D]|Rest], [BestP, BestD]) :-
+    min_path(Rest, [RP, RD]),
+    (D < RD -> (BestP = P, BestD = D) ; (BestP = RP, BestD = RD)).
+	
+	
+	
+	
+?- travel(gate, fcbs, [gate], Path, Dist).
+?- shortest_path(gate, fcbs, Path, Dist).
+
+
+
+
+
+
+%% User  Input 
+
+start :- 
+	write('Enter a  Prolog List  ,  eg., [a,b,c]. (end with the  dot )'),  nl ,
+	write('List: '), read(List) ,
+	format('You entered : ~w~n' , [List]),
+
+	( list_length(List , Len) 
+	   -> format('Length : ~w~n' , [Len])
+ 	    ; write('Not a Proper List!!!') , nl ,
+	      fail 
+
+	) ,
+
+	write('Enter  Element to  check  membership : (term  ,  dot)'), nl, 
+	write('Element: ') , read(Elem) ,
+	
+	( is_member(Elem , List)
+	   ->write('Result : YES ,  its a Member.') ,nl 
+	    ; write('Result : NO , its not  a Member.') , nl
+
+
+	) ,
+
+	nl , write('Done.') , nl.		
+
+
+
+
+%  list  length 
+
+list_length([] , 0).
+list_length([_|T] , N) :-
+	list_length(T , N1) ,
+	N is N1 + 1.
+
+% is member 
+
+is_member(X , [X|_]).
+is_member(X , [_|T]) :- 
+	is_member(X ,T).
+
+
+
+
+
+%% FILE OPERATIONS 
+
+process_file :- read(Line) , Line \== end_of_file , process(Line).
+process_file :- !.
+process(Line) :- write(Line) ,  nl ,  process_file.
+
+
+% write to the file 
+write_example :- 
+	open('test.txt' , write ,  Stream) , 
+	write(Stream , 'Hellooooo this is testiing !!!'),
+	close(Stream).
+
+
+
+%  apped to  the  file 
+append_example :- 
+	open('test.txt'  , append ,  Stream) , 
+	nl(Stream) , 
+	write(Stream, 'This is a new Line added!!!!...') ,
+	close(Stream) ,
+	write('New Line added Successfully...') , nl.
+	
+
+
+% show content  of the file 
+show_content :- 
+	open('test.txt' , read ,  Stream ) , 
+	
+	repeat ,
+
+	get_char(Stream  ,  Char) , 
+	(Char == end_of_file -> 
+	
+	 	! , close(Stream), nl , write('End of the file Reached.')
+	;
+	 	write(Char) ,  fail 
+	).
+
+
+%  clear the file  
+clear_file :-
+	open('test.txt' , write , Stream) , 
+	close(Stream) , 
+	write('File Cleared - Now Empty...' ) ,  nl.
+	
+
+
+%  add student  nsme to the file  by parameters
+add_student(Name) :- 
+	open('students.txt' ,  append ,  Stream),
+	nl(Stream) , 
+	write(Stream , Name) ,
+	close(Stream) ,
+	format('Student "~w" added to the  file. ~n' ,  [Name]).
+
+
+
+
