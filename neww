@@ -1,186 +1,193 @@
-mkdir – mkdir Root → New folder create karanna
-cd – cd Root → Directory ekakata enter wenna
-pwd – pwd → Current path eka balanna
-ls – ls → Files & folders list karanna
-ls -l – ls -l → Detailed list balanna (permissions, size)
-mv – mv Products MyPractical → Folder/file rename karanna
-mv – mv file folder/ → File move karanna
-mv – mv SecondFile.txt ../Services/Repair/ → File eka Repair folder ekata move karanna
-touch – touch file.txt → Empty file create karanna
-echo – echo "text" > file.txt → File ekata text write karanna
-cat – cat file.txt → File content display karanna
-cat >> – cat file1 >> file2 → File content append karanna
-cat >> – cat FirstFile.txt >> ../Services/Repair/SecondFile.txt → FirstFile content eka SecondFile eke anthimata add karanna
-cp – cp file folder/ → File copy karanna
-cp – cp FirstFile.txt ../Services/Repair/ → FirstFile.txt copy karala Repair folder ekata danna
-rm – rm file.txt → File delete karanna
-rm -r – rm -r folder/ → Folder delete karanna
-zip -r – zip -r file.zip folder/ → Folder compress karanna
-unzip – unzip file.zip → Zip file extract karanna
-nano – nano file.txt → File edit karanna
-less – less file.txt → Scroll karala file balanna
-head – head file.txt → File eke first lines balanna
-tail – tail file.txt → File eke last lines balanna
-clear – clear → Terminal screen clear karanna
-history – history → Previous commands balanna
-whoami – whoami → Current user balanna
-useradd – sudo useradd user → New user create karanna
-passwd – sudo passwd user → Password set karanna
-su – su - user → Switch user karanna
-chmod – chmod 755 file → File permissions change karanna
-chown – sudo chown user file → File owner change karanna
-gcc – gcc program.c -o program → C program compile karanna
-./ – ./program → Executable file run karanna
+///////////CA02////////////
 
----RoundRobin---
 
-#include <stdio.h>
+#include <iostream>
+#include <string>
+#include <cctype>
+using namespace std;
 
-int main() {
-    int n = 4, quantum = 2;
-    char *name[] = {"P1", "P2", "P3", "P4"};
-    int at[] = {0, 1, 2, 3};
-    int bt[] = {10, 5, 8, 6};
-    int rem[4], ct[4], tat[4], wt[4];
-
-    for (int i = 0; i < n; i++)
-        rem[i] = bt[i];
-
-    int time = 0, completed = 0;
-
-    printf("--- Round Robin Scheduling (Quantum = %d) ---\n", quantum);
-    printf("Execution Sequence:\n");
-
-    while (completed < n) {
-        int done = 1;
-        for (int i = 0; i < n; i++) {
-            if (rem[i] > 0 && at[i] <= time) {
-                int t = 0;
-                if(rem[i] < quantum){
-                    t = rem[i];
-                }else{
-                    t = quantum;
-                }
-                printf("[t=%2d - t=%2d] %s\n", time, time + t, name[i]);
-                time += t;
-                rem[i] -= t;
-                if (rem[i] == 0) {
-                    ct[i] = time;
-                    completed++;
-                }
-                done = 0;
-            }
-        }
-        if (done) time++;
-    }
-
-    float totalTAT = 0, totalWT = 0;
-    printf("\n\n--------------------------\n");
-    printf("Process\tAT\tBT\tCT\tTAT\tWT\n");
-    printf("--------------------------\n");
-    for (int i = 0; i < n; i++) {
-        tat[i] = ct[i] - at[i];
-        wt[i] = tat[i] - bt[i];
-        totalTAT += tat[i];
-        totalWT += wt[i];
-        printf("%s\t\t%d\t%d\t%d\t%d\t%d\n", name[i], at[i], bt[i], ct[i], tat[i], wt[i]);
-        
-    }
-    printf("--------------------------\n");
-
-    printf("\nAverage TAT = %.2f\n", totalTAT / n);
-    printf("Average WT  = %.2f\n", totalWT / n);
-
-    return 0;
-}
-
----Banker's---
-
-#include <stdio.h>
-
-#define MAX 10
-
-int main() {
-    int n, m; 
-    int alloc[MAX][MAX], max[MAX][MAX], need[MAX][MAX];
-    int avail[MAX];
-    int finish[MAX] = {0};
-    int safeSeq[MAX];
-
-    printf("Enter number of processes: ");
-    scanf("%d", &n);
-
-    printf("Enter number of resources: ");
-    scanf("%d", &m);
-
-    
-    printf("\nEnter Allocation Matrix:\n");
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j < m; j++) {
-            scanf("%d", &alloc[i][j]);
-        }
-    }
-
-    
-    printf("\nEnter Max Matrix:\n");
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j < m; j++) {
-            scanf("%d", &max[i][j]);
-        }
-    }
-
-    
-    printf("\nEnter Available Resources:\n");
-    for(int i = 0; i < m; i++) {
-        scanf("%d", &avail[i]);
-    }
-
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j < m; j++) {
-            need[i][j] = max[i][j] - alloc[i][j];
-        }
-    }
-
+// Count vowels
+int countVowels(string str){
     int count = 0;
-
-    while(count < n) {
-        int found = 0;
-
-        for(int i = 0; i < n; i++) {
-            if(finish[i] == 0) {
-                int j;
-                for(j = 0; j < m; j++) {
-                    if(need[i][j] > avail[j]) {
-                        break;
-                    }
-                }
-
-                
-                if(j == m) {
-                    for(int k = 0; k < m; k++) {
-                        avail[k] += alloc[i][k];
-                    }
-
-                    safeSeq[count++] = i;
-                    finish[i] = 1;
-                    found = 1;
-                }
-            }
-        }
-
-       
-        if(found == 0) {
-            printf("\nSystem is NOT in safe state!\n");
-            return 0;
+    for(int i = 0; i < str.length(); i++){
+        char ch = tolower(str[i]);
+        if(ch=='a' || ch=='e' || ch=='i' || ch=='o' || ch=='u'){
+            count++;
         }
     }
+    return count;
+}
 
-   
-    printf("\nSystem is in SAFE state.\nSafe sequence: ");
-    for(int i = 0; i < n; i++) {
-        printf("P%d ", safeSeq[i]);
+// Count words
+int countWords(string str){
+    int count = 0;
+    for(int i = 0; i < str.length(); i++){
+        if(str[i] == ' '){
+            count++;
+        }
     }
+    return count + 1; // words = spaces + 1
+}
 
-    printf("\n");
+// Check palindrome
+bool isPalindrome(string str){
+    int start = 0;
+    int end = str.length() - 1;
+
+    while(start < end){
+        if(str[start] != str[end]){
+            return false;
+        }
+        start++;
+        end--;
+    }
+    return true;
+}
+
+
+
+
+
+
+
+
+//////////////////fact + Fibo ////////////////
+
+
+
+
+#include <iostream>
+using namespace std;
+
+// Function to calculate factorial
+int factorial(int n) {
+    int fact = 1;
+    for(int i = 1; i <= n; i++) {
+        fact *= i;
+    }
+    return fact;
+}
+
+// Function to calculate fibonacci
+int fibonacci(int n) {
+    if(n == 0) return 0;
+    if(n == 1) return 1;
+
+    int a = 0, b = 1, c;
+    for(int i = 2; i <= n; i++) {
+        c = a + b;
+        a = b;
+        b = c;
+    }
+    return b;
+}
+
+int main() {
+    int num;
+
+    cout << "Enter a number: ";
+    cin >> num;
+
+    cout << "Factorial of " << num << " = " << factorial(num) << endl;
+    cout << "Fibonacci of " << num << " = " << fibonacci(num) << endl;
+
     return 0;
 }
+
+
+
+
+
+////////////seat book //////////////
+
+
+#include <iostream>
+#include <cctype>
+using namespace std;
+
+int main () {
+
+    const int Row = 13;
+    const int Col = 6;
+
+    char ticket_type;
+    int row;
+    char col;
+    char seats[Row][Col];
+
+    // Initialize seats
+    for(int i=0;i<Row;i++) {
+        for(int j=0;j<Col;j++) {
+            seats[i][j] = '*';
+        }
+    }
+
+    cout << "Row 1 and 2 are First Class (F)\n";
+    cout << "Row 3 to 7 are Business Class (B)\n";
+    cout << "Row 8 to 13 are Economy Class (E)\n\n";
+
+    cout << "* - Available\n";
+    cout << "x - Occupied\n\n";
+
+    cout << "        A   B   C   D   E   F\n";
+
+    for(int i=0;i<Row;i++) {
+        cout << "Row " << i+1 << "   ";
+        for(int j=0;j<Col;j++) {
+            cout << seats[i][j] << "   ";
+        }
+        cout << endl;
+    }
+
+    cout << "\nEnter Ticket type (F/B/E): ";
+    cin >> ticket_type;
+
+    cout << "Enter Row (1-13): ";
+    cin >> row;
+
+    cout << "Enter Column (A-F): ";
+    cin >> col;
+
+    col = toupper(col);   // ?? important fix
+
+    bool valid = false;
+
+    if(ticket_type == 'F' && row>=1 && row<=2) valid = true;
+    else if(ticket_type == 'B' && row>=3 && row<=7) valid = true;
+    else if(ticket_type == 'E' && row>=8 && row<=13) valid = true;
+
+    if(col < 'A' || col > 'F'){
+        cout << "Invalid column!" << endl;
+        return 0;
+    }
+
+    if(!valid){
+        cout << "Invalid seat selection!" << endl;
+        return 0;
+    }
+
+    int colindex = col - 'A';
+
+    if(seats[row-1][colindex] == 'x'){
+        cout << "Seat already occupied!" << endl;
+    }
+    else{
+        seats[row-1][colindex] = 'x';
+        cout << "Seat booked successfully!" << endl;
+    }
+
+    cout << "\n----- Updated Seat Map -----\n";
+    cout << "        A   B   C   D   E   F\n";
+
+    for(int i=0;i<Row;i++) {
+        cout << "Row " << i+1 << "   ";
+        for(int j=0;j<Col;j++) {
+            cout << seats[i][j] << "   ";
+        }
+        cout << endl;
+    }
+
+    return 0;
+}
+
+
