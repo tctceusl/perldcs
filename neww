@@ -191,3 +191,416 @@ int main () {
 }
 
 
+
+
+
+
+
+////////////decitobin //////////////
+
+
+#include <iostream>
+using namespace std;
+
+void decitobin(int n){
+  int binary[100];
+  int i = 0;
+    
+    if (n == 0){
+      cout << "0";
+      return;
+  }
+  while ( n>0 ){
+    binary[i] = n%2;
+    n = n/2 ;
+    i++;
+  }
+  for ( int j =i-1 ; j>=0 ; j--){
+    cout << binary[j];
+  }
+}
+
+int main (){
+  int num;
+  cout << " Enter a decimal number :";
+  cin >> num;
+  
+  if ( num < 0 || num > 999){
+    cout << " invalide input ";
+  }
+  else {
+    cout << " binary :";
+    decitobin(num);
+    cout << endl;
+  }
+  return 0;
+}
+
+
+
+
+
+
+//////////// matrix //////////////
+
+
+// half diamond pattern
+#include <iostream>
+using namespace std;
+
+int main(){
+  int row = 5;
+  // ??? ????
+for(int i = 1; i <= 5; i++) {
+    for(int j = 1; j <= i; j++) cout << " * ";
+    cout << endl;
+}
+// ??? ????
+for(int i = 4; i >= 1; i--) {
+    for(int j = 1; j <= i; j++) cout << " * ";
+    cout << endl;
+}
+return 0;
+}
+
+
+
+
+
+//////////// principal //////////////
+
+
+#include <iostream>
+#include <cmath>
+#include <iomanip>
+using namespace std;
+
+int main (){
+  int choice;
+  double A ,P ,r ,n ;
+  const int k = 12;
+  
+  cout << " 1) Amount  2) Principal ";
+  cin >> choice ;
+  
+  if ( choice == 1){
+    cout << "Enter the principal :";
+    cin >> P;
+    if ( P < 0){
+      cout << " Invalid principal :";
+      return 0;
+    }
+    cout << "Enter the rate :";
+    cin >> r;
+    if ( r<0 ||r>100){
+      cout << "Invalid rate :";
+      return 0;
+    }
+    cout << "Enter the number of years :";
+    cin >> n;
+    if ( n<=0 ){
+      cout << "Invalid number of years :";
+      return 0;
+    }
+    A = P * pow( ( 1+r / (100*k)) ,(n*k));
+    cout << fixed << setprecision(2)<< "The amount is :"<< A << endl;
+  }
+    else if (choice == 2){
+  cout << " Enter the amount :";
+  cin >> A ;
+  if ( A<0 ){
+    cout << "Invalid amount :";
+    return 0;
+  }
+  cout << "Enter the rate :";
+    cin >> r;
+    if ( r<0 ||r>100){
+      cout << "Invalid rate :";
+      return 0;
+    }
+    cout << "Enter the number of years :";
+    cin >> n;
+    if ( n<=0 ){
+      cout << "Invalid number of years :";
+      return 0;
+    }
+    P = A / pow((1+r / (100*k)), (n*k));
+    cout << fixed << setprecision(2)<< "The principal is :"<< P << endl;
+    }
+    else {
+      cout << "Invalid option ";
+  }
+  return 0;
+  }
+
+
+
+
+
+
+
+//////////// star//////////////
+
+
+// half diamond pattern
+#include <iostream>
+using namespace std;
+
+int main(){
+  int row = 5;
+  // ??? ????
+for(int i = 1; i <= 5; i++) {
+    for(int j = 1; j <= i; j++) cout << " * ";
+    cout << endl;
+}
+// ??? ????
+for(int i = 4; i >= 1; i--) {
+    for(int j = 1; j <= i; j++) cout << " * ";
+    cout << endl;
+}
+return 0;
+}
+
+
+
+
+
+
+//////////// arrays  //////////////
+
+
+
+#include <iostream>
+using namespace std;
+
+const int SIZE = 5;
+
+// Function prototypes
+void printArray(int arr[]);
+void reverseArray(int original[], int reversed[]);
+bool isSymmetrical(int original[], int reversed[]);
+int findMax(int arr[]);
+int findMin(int arr[]);
+int sumArray(int arr[]);
+void countEvenOdd(int arr[]);
+void differenceArray(int arr1[], int arr2[], int diff[]);
+bool isUnique(int arr[]);
+double findAverage(int arr[]);
+void reverseInPlace(int arr[]);
+
+int main() {
+    int arr[SIZE] = {1, 2, 3, 2, 1};
+    int reversed[SIZE];
+    int diff[SIZE];
+
+    cout << "Original Array: ";
+    printArray(arr);
+
+    // Reverse into new array
+    reverseArray(arr, reversed);
+    cout << "Reversed Array: ";
+    printArray(reversed);
+
+    // Symmetry check
+    if (isSymmetrical(arr, reversed))
+        cout << "Array is symmetrical\n";
+    else
+        cout << "Array is not symmetrical\n";
+
+    // Max and Min
+    cout << "Max (Reversed): " << findMax(reversed) << endl;
+    cout << "Min (Original): " << findMin(arr) << endl;
+
+    // Sum
+    cout << "Sum (Original): " << sumArray(arr) << endl;
+    cout << "Sum (Reversed): " << sumArray(reversed) << endl;
+
+    // Even/Odd
+    countEvenOdd(arr);
+
+    // Difference array
+    differenceArray(arr, reversed, diff);
+    cout << "Difference Array: ";
+    printArray(diff);
+
+    // Unique check
+    if (isUnique(arr))
+        cout << "All elements are unique\n";
+    else
+        cout << "Duplicates exist\n";
+
+    // Average
+    cout << "Average: " << findAverage(arr) << endl;
+
+    // Reverse in-place
+    reverseInPlace(arr);
+    cout << "In-place Reversed Array: ";
+    printArray(arr);
+
+    return 0;
+}
+
+/////////////////////////////////////////////////////
+
+void printArray(int arr[]) {
+    for (int i = 0; i < SIZE; i++)
+        cout << arr[i] << " ";
+    cout << endl;
+}
+
+/////////////////////////////////////////////////////
+
+void reverseArray(int original[], int reversed[]) {
+    for (int i = 0; i < SIZE; i++)
+        reversed[i] = original[SIZE - 1 - i];
+}
+
+/////////////////////////////////////////////////////
+
+bool isSymmetrical(int original[], int reversed[]) {
+    for (int i = 0; i < SIZE; i++) {
+        if (original[i] != reversed[i])
+            return false;
+    }
+    return true;
+}
+
+/////////////////////////////////////////////////////
+
+int findMax(int arr[]) {
+    int max = arr[0];
+    for (int i = 1; i < SIZE; i++) {
+        if (arr[i] > max)
+            max = arr[i];
+    }
+    return max;
+}
+
+/////////////////////////////////////////////////////
+
+int findMin(int arr[]) {
+    int min = arr[0];
+    for (int i = 1; i < SIZE; i++) {
+        if (arr[i] < min)
+            min = arr[i];
+    }
+    return min;
+}
+
+/////////////////////////////////////////////////////
+
+int sumArray(int arr[]) {
+    int sum = 0;
+    for (int i = 0; i < SIZE; i++)
+        sum += arr[i];
+    return sum;
+}
+
+/////////////////////////////////////////////////////
+
+void countEvenOdd(int arr[]) {
+    int even = 0, odd = 0;
+
+    for (int i = 0; i < SIZE; i++) {
+        if (arr[i] % 2 == 0)
+            even++;
+        else
+            odd++;
+    }
+
+    cout << "Even: " << even << " Odd: " << odd << endl;
+}
+
+/////////////////////////////////////////////////////
+
+void differenceArray(int arr1[], int arr2[], int diff[]) {
+    for (int i = 0; i < SIZE; i++)
+        diff[i] = arr1[i] - arr2[i];
+}
+
+/////////////////////////////////////////////////////
+
+bool isUnique(int arr[]) {
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = i + 1; j < SIZE; j++) {
+            if (arr[i] == arr[j])
+                return false;
+        }
+    }
+    return true;
+}
+
+/////////////////////////////////////////////////////
+
+double findAverage(int arr[]) {
+    return (double)sumArray(arr) / SIZE;
+}
+
+/////////////////////////////////////////////////////
+
+void reverseInPlace(int arr[]) {
+    for (int i = 0; i < SIZE / 2; i++) {
+        int temp = arr[i];
+        arr[i] = arr[SIZE - 1 - i];
+        arr[SIZE - 1 - i] = temp;
+    }
+}
+
+
+
+
+
+
+
+//////////// NIC //////////////
+
+
+#include <iostream>
+using namespace std;
+
+void extractYear(string nic) {
+    int year = (nic.length() == 10) ? 1900 + stoi(nic.substr(0, 2)) : stoi(nic.substr(0, 4));
+    cout << "Year: " << year << endl;
+}
+
+void extractGender(string nic) {
+    int dayOfYear = stoi(nic.substr((nic.length() == 12) ? 4 : 2, 3));
+    string gender = (dayOfYear < 500) ? "Male" : "Female";
+    cout << "Gender: " << gender << endl;
+}
+
+void extractBirthday(string nic) {
+    int dayOfYear = stoi(nic.substr((nic.length() == 12) ? 4 : 2, 3));
+    if (dayOfYear > 500) dayOfYear -= 500;
+
+    int daysInMonths[] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    string months[] = {"January", "February", "March", "April", "May", "June",
+                       "July", "August", "September", "October", "November", "December"};
+    int monthIndex = 0;
+    while (dayOfYear > daysInMonths[monthIndex]) {
+        dayOfYear -= daysInMonths[monthIndex++];
+    }
+
+    cout << "Birthday: " << months[monthIndex] << " " << dayOfYear << endl;
+}
+
+int main() {
+    string nic;
+    cout << "Enter NIC Number: ";
+    cin >> nic;
+
+    if (nic.length() == 10 || nic.length() == 12) {
+        extractYear(nic);
+        extractGender(nic);
+        extractBirthday(nic);
+    } else {
+        cout << "Invalid NIC format!" << endl;
+    }
+
+    return 0;
+}
+
+
+
+
+
