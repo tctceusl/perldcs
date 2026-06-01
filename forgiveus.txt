@@ -1019,3 +1019,59 @@
 	sum_done : 
 		move $v0 , $t1 
 		jr $ra 	
+
+
+
+
+## sum  of even  or odd in array
+.data
+array:     .word 12, 7, 19, 24, 5, 10
+size:      .word 6
+msg_even:  .asciiz "Sum of Even numbers: "
+msg_odd:   .asciiz "\nSum of Odd numbers: "
+
+.text
+main:
+    la $t0, array
+    lw $t1, size
+    li $t2, 0          
+    li $s0, 0          # Even Sum = 0
+    li $s1, 0          # Odd Sum = 0
+
+loop:
+    beq $t2, $t1, exit
+    lw $t3, 0($t0)
+
+    li $t4, 2
+    div $t3, $t4
+    mfhi $t5           
+
+    beqz $t5, is_even  
+    add $s1, $s1, $t3  
+    j next
+
+is_even:
+    add $s0, $s0, $t3  
+
+next:
+    addi $t0, $t0, 4
+    addi $t2, $t2, 1
+    j loop
+
+exit:
+    li $v0, 4
+    la $a0, msg_even
+    syscall
+    move $a0, $s0
+    li $v0, 1
+    syscall
+
+    li $v0, 4
+    la $a0, msg_odd
+    syscall
+    move $a0, $s1
+    li $v0, 1
+    syscall
+
+    li $v0, 10
+    syscall
