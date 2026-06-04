@@ -638,3 +638,436 @@ public class User_Registration {
 
 
 
+#######################################################################################################
+
+
+
+Q1=========
+package test;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WindowType;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class test1 {
+	
+	static WebDriver driver;
+	public static void main(String[] args) throws InterruptedException {
+		
+		driver = new ChromeDriver();
+		
+		driver.get("C:\\Users\\rasee\\OneDrive\\Desktop\\Bsc Computer Science\\year and semester\\Year 3 semester 2\\selenium\\home.html");
+		
+		driver.findElement(By.name("firstname")).sendKeys("rasik");
+		Thread.sleep(1000);
+		
+		driver.findElement(By.name("lastname")).sendKeys("safran");
+		Thread.sleep(1000);
+		
+		driver.findElement(By.name("email")).sendKeys("rasik123@gmail.com");
+		Thread.sleep(1000);
+		
+		driver.findElement(By.name("password")).sendKeys("rasik123");
+		Thread.sleep(1000);
+		
+		driver.findElement(By.name("confirmpassword")).sendKeys("rasik123");
+		Thread.sleep(1000);
+
+		
+		driver.findElement(By.cssSelector("input[value='Male']")).click();
+		Thread.sleep(1000);
+		
+		
+		driver.findElement(By.cssSelector("input[value='Travel']")).click();
+		Thread.sleep(1000);
+		
+		
+		driver.findElement(By.name("income")).sendKeys("Self-employed");
+		Thread.sleep(1000);
+		
+		driver.findElement(By.name("age")).sendKeys("25");
+		Thread.sleep(1000);
+		
+		driver.findElement(By.name("biodata")).sendKeys("safran is good boy ");
+		Thread.sleep(1000);
+		
+		driver.findElement(By.cssSelector("input[value='Register'")).click();
+		
+		// 13. Open new tab and search Google
+		driver.switchTo().newWindow(WindowType.TAB);
+		driver.get("https://www.google.com");
+		driver.findElement(By.name("r")).sendKeys("html code venum", Keys.ENTER);
+		
+		Thread.sleep(30000);
+		
+		
+	}
+
+}
+
+
+
+
+Q2===========
+package test;
+
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.Select;
+
+public class test2 {
+
+    WebDriver driver;
+
+    // 1. Open browser and navigate to Admin Login Page
+    public void openBrowser() {
+        driver = new ChromeDriver();
+        driver.get("http://localhost/php/login.php");
+    }
+
+    // 2 & 3. Login with validation
+    public void adminLogin(String username, String password) {
+
+        if (username.isEmpty()) {
+            System.out.println("username is empty");
+            return;
+        }
+
+        if (password.isEmpty()) {
+            System.out.println("password is empty");
+            return;
+        }
+
+        driver.findElement(By.name("username")).sendKeys(username);
+        driver.findElement(By.name("password")).sendKeys(password);
+        driver.findElement(By.cssSelector("button[type='submit']")).click();
+
+        System.out.println("Login attempted successfully");
+    }
+
+    // 4 & 5. URL validation + user menu
+    public void checkURL() {
+
+        String expectedURL = "http://localhost/php/users.php";
+        String actualURL = driver.getCurrentUrl();
+
+        if (actualURL.equals(expectedURL)) {
+            System.out.println("URL Validation Success!");
+        } else {
+            System.out.println("URL Validation Failed!");
+        }
+
+        driver.findElement(By.linkText("Users")).click();
+    }
+
+    // Show entries dropdown (select by index)
+    public void selectShowEntries() {
+
+        WebElement dropdown = driver.findElement(By.name("example_length"));
+        Select select = new Select(dropdown);
+
+        select.selectByIndex(2);
+
+        System.out.println("The Selected Option is : " + select.getFirstSelectedOption().getText());
+    }
+
+    // 6. Search user
+    public void searchUser() {
+        driver.findElement(By.cssSelector("input[type='search']")).sendKeys("Ad");
+    }
+
+    // 7. Add new user + handle alert
+    public void addUser() throws InterruptedException {
+
+        driver.findElement(By.linkText("Add User")).click();
+
+        driver.findElement(By.name("email")).sendKeys("ravi@gmail.com");
+        driver.findElement(By.name("password")).sendKeys("ravi@12345");
+        driver.findElement(By.name("firstname")).sendKeys("ravi");
+        driver.findElement(By.name("lastname")).sendKeys("kathir");
+
+        driver.findElement(By.cssSelector("button[type='submit']")).click();
+
+        Thread.sleep(1000);
+
+        Alert alert = driver.switchTo().alert();
+        System.out.println("User Saving Alert Message is: " + alert.getText());
+        alert.accept();
+    }
+
+    // 8. Logout
+    public void logout() {
+        driver.findElement(By.linkText("Logout")).click();
+        System.out.println("Logged out successfully");
+    }
+
+    // 9. Main method (call all methods)
+    public static void main(String[] args) throws InterruptedException {
+
+        test2 obj = new test2();
+
+        obj.openBrowser();
+
+        obj.adminLogin("admin@gmail.com", "admin@12345");
+
+        Thread.sleep(2000);
+
+        obj.checkURL();
+
+        Thread.sleep(2000);
+
+        obj.selectShowEntries();
+
+        Thread.sleep(2000);
+
+        obj.searchUser();
+
+        Thread.sleep(2000);
+
+        obj.addUser();
+
+        Thread.sleep(2000);
+
+        obj.logout();
+    }
+}
+
+
+
+Q3================
+
+package test;
+
+import org.testng.annotations.Test;
+
+public class test3 {
+
+    @Test
+    public void registerAccount() {
+        System.out.println("First register your account");
+    }
+
+    @Test
+    public void sendEmail() {
+        System.out.println("Send email after login");
+    }
+
+    @Test
+    public void login() {
+        System.out.println("Login to the account after registration");
+    }
+
+    @Test
+    public void homepage() {
+        System.out.println("This is the home page");
+    }
+
+    @Test
+    public void logout() {
+        System.out.println("Logout current session");
+    }
+}
+
+
+Q3____________
+
+package test;
+
+import org.testng.annotations.Test;
+
+public class testNG {
+
+    @Test
+    public void registerAccount() {
+        System.out.println("First register your account");
+    }
+
+    @Test(dependsOnMethods = "registerAccount")
+    public void login() {
+        System.out.println("Login to the account after registration");
+    }
+
+    @Test(dependsOnMethods = "login")
+    public void sendEmail() {
+        System.out.println("Send email after login");
+    }
+
+    @Test(dependsOnMethods = {"login"})
+    public void homepage() {
+        System.out.println("This is the home page");
+    }
+
+    @Test(dependsOnMethods = {"login", "homepage"})
+    public void logout() {
+        System.out.println("Logout current session");
+ }
+}
+
+Q3____________
+
+
+package test;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.Test;
+
+public class testNG2 {
+
+    @Test
+    (invocationCount = 3, threadPoolSize = 3)
+    public void openGoogle() {
+
+        WebDriver driver = new ChromeDriver();
+        driver.get("https://www.google.com");
+
+        System.out.println("Google page is open");
+
+    }
+}
+
+
+
+Q4==================
+
+package test;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+public class user_demo {
+
+    WebDriver driver;
+
+    @BeforeTest
+    public void openBrowser() {
+
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+
+        // Load users.php page
+        driver.get("http://localhost/employee/users.php");
+    }
+
+    // Login
+    @Test(priority = 1)
+    public void login() throws InterruptedException {
+
+        driver.findElement(By.name("username"))
+                .sendKeys("admin");
+
+        driver.findElement(By.name("password"))
+                .sendKeys("admin123");
+
+        driver.findElement(By.name("login"))
+                .click();
+
+        Thread.sleep(2000);
+
+        String pageSource = driver.getPageSource();
+
+        if (pageSource.contains("Invalid")
+                || pageSource.contains("Wrong")
+                || pageSource.contains("Error")) {
+
+            System.out.println("Error message detected");
+        } else {
+
+            System.out.println("Login Successful");
+        }
+    }
+
+    // Search Employee
+    @Test(priority = 2, dependsOnMethods = "login")
+    public void searchEmployee() throws InterruptedException {
+
+        WebElement search =
+                driver.findElement(By.xpath("//input[@type='search']"));
+
+        search.clear();
+        search.sendKeys("ab");
+
+        Thread.sleep(2000);
+
+        String tableText =
+                driver.findElement(By.tagName("table")).getText();
+
+        if (tableText.toLowerCase().contains("ab")) {
+
+            System.out.println("data detected");
+        } else {
+
+            System.out.println("data undetected");
+        }
+    }
+
+    // Update User
+    @Test(priority = 3, dependsOnMethods = "searchEmployee")
+    public void updateUser() throws InterruptedException {
+
+        driver.findElement(
+                By.xpath("//button[contains(text(),'Update')]"))
+                .click();
+
+        Thread.sleep(2000);
+
+        // Close popup
+        driver.findElement(
+                By.xpath("//button[contains(text(),'Close')]"))
+                .click();
+
+        System.out.println("Update popup closed");
+    }
+
+    // Add New User
+    @Test(priority = 4, dependsOnMethods = "updateUser")
+    public void addNewUser() throws InterruptedException {
+
+        driver.findElement(
+                By.xpath("//button[contains(text(),'Add New')]"))
+                .click();
+
+        Thread.sleep(2000);
+
+        // Close popup
+        driver.findElement(
+                By.xpath("//button[contains(text(),'Close')]"))
+                .click();
+
+        System.out.println("Add New popup closed");
+    }
+
+    // Logout
+    @Test(priority = 5, dependsOnMethods = "addNewUser")
+    public void logout() throws InterruptedException {
+
+        driver.findElement(
+                By.linkText("Logout"))
+                .click();
+
+        Thread.sleep(2000);
+
+        System.out.println("System Logout Successfully");
+    }
+
+    @AfterTest
+    public void closeBrowser() {
+
+        driver.quit();
+
+        System.out.println("Browser Closed");
+    }
+}
+
+
+
