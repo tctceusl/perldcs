@@ -1,236 +1,640 @@
-.data
-    newline : .asciiz "\n"
+form
 
-.text
-    .globl main
-    main:
-        jal  exit_program
 
-# a) exit from program
-exit_program:
-    li   $v0, 10
-    syscall
+package user;
 
-# b) print a String (string address in $a0)
-print_string:
-    li   $v0, 4
-    syscall
-    jr   $ra
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.Select;
 
-# c) prompt and read an Integer (prompt string in $a0, returns int in $v0)
-prompt_int:
-    li   $v0, 4
-    syscall
-    li   $v0, 5
-    syscall
-    jr   $ra
+public class UserData {
 
-# d) print an Integer (integer in $a0)
-print_int:
-    li   $v0, 1
-    syscall
-    jr   $ra
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+       //System.setProperty("webdriver.chrome.driver", "C:\\Users\\User\\Downloads\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe");
+       
+       WebDriver driver = new ChromeDriver();
+       
+       try {
+    	   driver.get("file:///C:/Users/User/Downloads/Home.html");
+    	   driver.manage().window().maximize();
+    	   
+    	   WebElement fulname = driver.findElement(By.id("name"));
+    	   fulname.sendKeys("kamal");
+    	   
+    	   WebElement email = driver.findElement(By.name("email"));
+    	   email.sendKeys("kamal@gmail.com");
+    	   
+    	   WebElement password = driver.findElement(By.xpath("//*[@id=\"password\"]"));
+    	   password.sendKeys("kamal@123");
+    	   
+    	   WebElement gender = driver.findElement(By.id("male"));
+    	   gender.click();
+    	   
+    	   Select country = new Select(driver.findElement(By.id("country")));
+    	   country.selectByVisibleText("India");
+    	   
+    	   Thread.sleep(3000);
+       }catch(Exception e) {
+    	   e.printStackTrace();
+       }
+       
+      
+	}
 
-# e) extract a digit from an Integer
-# Input : $a0 = number, $a1 = digit position (1=units, 2=tens, 3=hundreds)
-# Output: $v0 = extracted digit
-extract_digit:
-    li   $t3, 1
-    extract_loop:
-        beq  $a1, $t3, do_extract
-        li   $t4, 10
-        div  $a0, $t4
-        mflo $a0
-        addi $t3, $t3, 1
-        j    extract_loop
-    do_extract:
-        li   $t4, 10
-        div  $a0, $t4
-        mfhi $v0             # remainder = digit
-        jr   $ra
+}
 
 
 
 
 
 
-
- # Armstrong number: N = d1^3 + d2^3 + d3^3
-# Test with: 153, 125
-
-.data
-    inputMsg : .asciiz "Enter a 3-digit integer: "
-    yesMsg   : .asciiz " is an Armstrong number!\n"
-    noMsg    : .asciiz " is NOT an Armstrong number.\n"
-    newline  : .asciiz "\n"
-
-.text
-    .globl main
-    main:
-
-    # --- Read number ---
-    la   $a0, inputMsg
-    jal  prompt_int
-    move $s0, $v0            # $s0 = N
-
-    # --- Extract hundreds digit (d1) ---
-    move $a0, $s0
-    li   $a1, 3              # position 3 = hundreds
-    jal  extract_digit
-    move $t0, $v0            # $t0 = d1
-    mul  $t0, $t0, $t0
-    mul  $t0, $t0, $v0       # Wait — recalculate properly below
-
-    # Re-extract cleanly
-    # d3 = N % 10
-    li   $t4, 10
-    div  $s0, $t4
-    mfhi $t2                 # $t2 = d3 (units)
-    mflo $t5                 # $t5 = N/10
-
-    # d2 = (N/10) % 10
-    div  $t5, $t4
-    mfhi $t1                 # $t1 = d2 (tens)
-    mflo $t5                 # $t5 = N/100
-
-    # d1 = (N/100) % 10
-    div  $t5, $t4
-    mfhi $t0                 # $t0 = d1 (hundreds)
-
-    # --- Calculate d1^3 + d2^3 + d3^3 ---
-    mul  $s1, $t0, $t0
-    mul  $s1, $s1, $t0       # $s1 = d1^3
-
-    mul  $s2, $t1, $t1
-    mul  $s2, $s2, $t1       # $s2 = d2^3
-
-    mul  $s3, $t2, $t2
-    mul  $s3, $s3, $t2       # $s3 = d3^3
-
-    add  $s4, $s1, $s2
-    add  $s4, $s4, $s3       # $s4 = sum of cubes
-
-    # --- Compare with N ---
-    move $a0, $s0
-    jal  print_int
-
-    beq  $s4, $s0, is_armstrong
-    j    not_armstrong
-
-    is_armstrong:
-        la   $a0, yesMsg
-        jal  print_string
-        j    end
-
-    not_armstrong:
-        la   $a0, noMsg
-        jal  print_string
-
-    end:
-    jal  exit_program
-
-# --- Utility subprograms ---
-exit_program:
-    li   $v0, 10
-    syscall
-
-print_string:
-    li   $v0, 4
-    syscall
-    jr   $ra
-
-prompt_int:
-    li   $v0, 4
-    syscall
-    li   $v0, 5
-    syscall
-    jr   $ra
-
-print_int:
-    li   $v0, 1
-    syscall
-    jr   $ra
+20-21   Q2
 
 
+package Hello;
+
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.Select;
+
+public class User {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+        OpenBrowser();
+        loginAdmin();
+        UrlValidation();
+        dropDown();
+        search();
+        newUser();
+        logout();
+	}
+	
+	public static WebDriver driver;
+	
+	public static void OpenBrowser() {
+		System.setProperty("webdriver.chrome.driver", "F:\\selinium\\chromedriver.exe");
+		
+		driver = new ChromeDriver();
+		
+		driver.get("http://localhost/employee/admin/");
+		driver.manage().window().maximize();
+		
+		
+	}
+	
+	public static void loginAdmin() {
+		String username = "admin@gmail.com";
+		String password = "admin@12345";
+		
+	
+		WebElement usename1 = driver.findElement(By.name("username"));
+		usename1.sendKeys(username);
+		
+		WebElement pass = driver.findElement(By.name("password"));
+		pass.sendKeys(password);
+		
+		if(username.isEmpty()) {
+			System.out.println("username is empty");
+		}
+		if(password.isEmpty()) {
+			System.out.println("password is empty");
+		}
+		
+		WebElement login = driver.findElement(By.xpath("//*[@id=\"login-frm\"]/button[1]"));
+		login.click();
+		
+		try {
+			Thread.sleep(2000);
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+				
+	}
+
+	public static void UrlValidation() {
+		WebElement employee = driver.findElement(By.id("Employee"));
+		employee.click();
+		
+		try {
+			Thread.sleep(2000);
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		String expentedUrl = "http://localhost/employee/admin/employee.php";
+		String currentUrl = driver.getCurrentUrl();
+		
+		if(currentUrl.equals(expentedUrl)) {
+			System.out.println("Url validation success");
+		}else {
+			System.out.println("Url validation failed");
+		}
+	}
+	
+	public static void dropDown() {
+		Select drop = new Select(driver.findElement(By.xpath("//*[@id=\"table_length\"]/label/select")));
+		drop.selectByIndex(1);
+		
+		String A = drop.getFirstSelectedOption().getText();
+		System.out.println("The select option is :" + A);
+	}
+	
+	public static void search() {
+		String name = "Bob";
+		WebElement searchitem = driver.findElement(By.xpath("//*[@id=\"table_filter\"]/label/input"));
+		searchitem.sendKeys(name);
+		
+		System.out.println("search item is  :" + name);
+	}
+	
+	public static void newUser() {
+		WebElement newuser = driver.findElement(By.id("new_emp_btn"));
+		newuser.click();
+		
+		try {
+			Thread.sleep(1000);
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		WebElement firstname = driver.findElement(By.name("firstname"));
+		firstname.sendKeys("kamal");
+		
+		WebElement middlename = driver.findElement(By.name("middlename"));
+		middlename.sendKeys("samn");
+		
+		WebElement lastname = driver.findElement(By.name("lastname"));
+		lastname.sendKeys("perera");
+		
+		WebElement department = driver.findElement(By.name("department"));
+		department.sendKeys("IT");
+		
+		WebElement position = driver.findElement(By.name("position"));
+		position.sendKeys("Software Enginner");
+		
+		WebElement Add = driver.findElement(By.name("save"));
+		Add.click();
+		
+		try {
+			Thread.sleep(1000);
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			Alert alert = driver.switchTo().alert();
+			
+			String alertmessage = alert.getText();
+			
+			System.out.println("User saving alert massage is :" + alertmessage);
+			alert.accept();
+			
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			Thread.sleep(1000);
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public static void logout() {
+		WebElement logout = driver.findElement(By.xpath("/html/body/nav/div/div[2]/a"));
+		logout.click();
+		
+	
+		
+	}
+}
 
 
 
 
 
 
-# Array: 56, 27, 13, 5, 44, 32, 17, 36
-# Prompt user for integer, search, print found/not found
 
-.data
-    arr      : .word 56, 27, 13, 5, 44, 32, 17, 36
-    arr_size : .word 8
-    inputMsg : .asciiz "Enter an integer to search: "
-    foundMsg : .asciiz "Integer is found.\n"
-    notFound : .asciiz "Integer is not found.\n"
 
-.text
-    .globl main
-    main:
 
-    # --- Read search target ---
-    la   $a0, inputMsg
-    jal  prompt_int
-    move $s0, $v0            # $s0 = target
 
-    # --- Setup loop ---
-    la   $t0, arr            # $t0 = base address of array
-    lw   $t1, arr_size       # $t1 = size (8)
-    li   $t2, 0              # $t2 = index counter
-    li   $s1, 0              # $s1 = found flag (0=not found)
 
-    search_loop:
-        beq  $t2, $t1, search_done   # if index == size, stop
+testNG q1
 
-        lw   $t3, 0($t0)             # load arr[i]
-        beq  $t3, $s0, found         # if arr[i] == target, found
+package Test;
 
-        addi $t0, $t0, 4             # move to next element
-        addi $t2, $t2, 1             # i++
-        j    search_loop
+import org.testng.annotations.Test;
 
-    found:
-        li   $s1, 1                  # set found flag
+public class DependentClass {
 
-    search_done:
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
 
-    # --- Print result ---
-    beqz $s1, print_not_found
+	}
+	
+	@Test
+	public void registerAccount() {
+		System.out.println("First register your account");
+	}
+	
+	@Test(dependsOnMethods= {"registerAccount"})
+	public void login() {
+		System.out.println("Login to the accout after registration");
+	}
+	
+	@Test()
+	public void homePage() {
+		System.out.println("This is home page");
+	}
+	
+	@Test()
+	public void sendEmail() {
+		System.out.println("send email after login");
+	}
+	
+	@Test(dependsOnMethods= {"login","homePage"})
+	public void logout() {
+		System.out.println("Logout current session");
+	}
 
-    la   $a0, foundMsg
-    jal  print_string
-    j    end
+}
 
-    print_not_found:
-    la   $a0, notFound
-    jal  print_string
 
-    end:
-    jal  exit_program
 
-# --- Utility subprograms ---
-exit_program:
-    li   $v0, 10
-    syscall
 
-print_string:
-    li   $v0, 4
-    syscall
-    jr   $ra
 
-prompt_int:
-    li   $v0, 4
-    syscall
-    li   $v0, 5
-    syscall
-    jr   $ra
 
-print_int:
-    li   $v0, 1
-    syscall
-    jr   $ra
+testNG q2
+
+package Test;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.Test;
+
+public class SecondTestNG {
+	
+	@Test
+	public void login() {
+		System.out.println("Login to the accout after registration 2 parallel");
+	}
+
+	@Test
+	public void Hello() {
+		System.out.println("Hello how are you 2");
+	}
+
+	
+	@Test(invocationCount= 3,threadPoolSize=3)
+	public void openGoogleTest() {
+		System.setProperty("webdriver.chrome.driver", "F:\\selinium\\chromedriver.exe");
+		
+		WebDriver driver = new ChromeDriver();
+		driver.get("https://www.google.com");
+		System.out.println("Google page is open");
+	}
+
+}
+
+
+
+
+
+
+testNG q3
+
+package Test;
+
+import org.testng.annotations.Test;
+
+public class Tstbasic_Exam {
+
+	
+	
+	@Test
+	public void registerAccount() {
+		System.out.println("First register your account");
+	}
+	
+	@Test(dependsOnMethods= {"registerAccount"})
+	public void login() {
+		System.out.println("Login to the accout after registration");
+	}
+	
+	@Test
+	public void homePage() {
+		System.out.println("This is home page");
+	}
+	
+	@Test
+	public void sendEmail() {
+		System.out.println("send email after login");
+	}
+	
+	@Test
+	public void logout() {
+		System.out.println("Logout current session");
+	}
+
+}
+
+
+
+
+
+testNG q4
+
+
+package Test;
+
+import java.time.Duration;
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+public class User_Demo_Test {
+
+	
+public static WebDriver driver;
+    
+    // 1. Load users.php page.
+    @BeforeTest
+    public void setup() {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        
+      
+        driver.get("http://localhost/employee_system/users.php");
+    }
+
+  
+    @Test(priority = 1)
+    public void loginTest() {
+        String inputUsername = "admin";
+        String inputPassword = "admin123";
+
+        WebElement usernameField = driver.findElement(By.id("username")); // හෝ By.name("username")
+        WebElement passwordField = driver.findElement(By.id("password"));
+        WebElement loginBtn = driver.findElement(By.id("login_btn"));
+
+        usernameField.sendKeys(inputUsername);
+        passwordField.sendKeys(inputPassword);
+        loginBtn.click();
+
+      
+        try {
+       
+            WebElement errorMessage = driver.findElement(By.id("error_msg_id"));
+            if (errorMessage.isDisplayed()) {
+                System.out.println("Login Failed: " + errorMessage.getText());
+            }
+        } catch (Exception e) {
+          
+            System.out.println("Login step executed.");
+        }
+    }
+
+  
+    @Test(priority = 2, dependsOnMethods = {"loginTest"})
+    public void searchEmployeeTest() {
+        WebElement searchField = driver.findElement(By.id("search_input"));
+        searchField.clear();
+        searchField.sendKeys("ab");
+
+       
+        List<WebElement> rows = driver.findElements(By.cssSelector("table tbody tr"));
+
+      
+        if (rows.size() > 0 && !rows.get(0).getText().contains("No records found")) {
+            System.out.println("data detected");
+        } else {
+            System.out.println("data undetected");
+        }
+    }
+
+  
+    @Test(priority = 3, dependsOnMethods = {"searchEmployeeTest"})
+    public void updateAndClosePopupTest() {
+       
+        driver.findElement(By.id("update_user_btn")).click();
+        
+        
+        driver.findElement(By.id("close_edit_popup")).click();
+        System.out.println("Update user popup handled and closed.");
+    }
+
+  
+    @Test(priority = 4, dependsOnMethods = {"loginTest"})
+    public void addNewAndClosePopupTest() {
+      
+        driver.findElement(By.id("add_new_btn")).click();
+        
+       
+        driver.findElement(By.id("close_add_popup")).click();
+        System.out.println("Add new user popup handled and closed.");
+    }
+
+    
+    @Test(priority = 5, dependsOnMethods = {"loginTest"})
+    public void logoutTest() {
+        WebElement logoutBtn = driver.findElement(By.id("logout_btn"));
+        logoutBtn.click();
+        System.out.println("Successfully logged out from the system.");
+    }
+
+    
+    @AfterTest
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+
+}
+
+
+
+
+
+
+
+
+CA 1
+
+
+package QA;
+
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait; 
+import org.openqa.selenium.support.ui.ExpectedConditions;
+public class CA01 {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+        System.setProperty("webdriver.chrome.driver", "F:\\selinium\\chromedriver.exe");
+        
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        try {
+        	driver.get("file:///D:/3.2/sqa/Ca1.html");
+        	driver.manage().window().maximize();
+        	
+        	WebElement fulname = driver.findElement(By.id("name"));
+        	fulname.sendKeys("Test User");
+        	
+        	WebElement Email = driver.findElement(By.id("email"));
+        	Email.sendKeys("test@gmal.com");
+        	
+        	WebElement password = driver.findElement(By.id("password"));
+        	password.sendKeys("Test@123");
+        	
+        	WebElement MobileNumber = driver.findElement(By.id("mobile"));
+        	MobileNumber.sendKeys("0765643212");
+        	
+        	WebElement gender = driver.findElement(By.name("gender"));
+        	gender.click();
+        	
+        	WebElement Hobby1 = driver.findElement(By.xpath("//*[@id=\"regForm\"]/input[7]"));
+        	Hobby1.click();
+        	
+        	WebElement Hobby2 = driver.findElement(By.xpath("//*[@id=\"regForm\"]/input[8]"));
+        	Hobby2.click();
+        	
+        	Select country = new Select(driver.findElement(By.name("country")));
+        	country.selectByVisibleText("Sri Lanka");
+        	
+        	WebElement slider = driver.findElement(By.name("exp"));
+            Actions move = new Actions(driver);
+            move.dragAndDropBy(slider, 50, 0).perform();
+            
+            WebElement dob = driver.findElement(By.name("dob"));
+        	dob.sendKeys("01-01-2001");
+        	
+        	WebElement submit = driver.findElement(By.id("submitBtn"));
+        	submit.click();
+        	
+        	driver.findElement(By.name("firstname")).clear();
+            driver.findElement(By.id("submitBtn")).click();
+            
+            String validationMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("validationMessage"))).getText();
+            System.out.println("Captured Validation Message: " + validationMsg);
+        	
+        	
+        }catch(Exception e) {
+        	e.printStackTrace();
+        }
+	}
+
+}
+
+
+
+
+
+
+
+20-21 q1
+
+package user;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.WindowType;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.Select;
+
+public class User_Registration {
+
+	public static void main(String[] args) {
+		System.setProperty("webdricer.chrome.driver", "F:\\selinium\\chromedriver.exe");
+		
+		WebDriver driver = new ChromeDriver();
+		
+		try {
+			driver.get("file:///D:/3.2/sqa/20_21practicalPaper/Home.html");
+			driver.manage().window().maximize();
+			
+		 WebElement firstname = driver.findElement(By.id("firstname"));
+		 firstname.sendKeys("Ravi");
+		 
+		 WebElement lastname = driver.findElement(By.id("lastname"));
+		 lastname.sendKeys("Kathir");
+		 
+		 WebElement email = driver.findElement(By.id("email"));
+		 email.sendKeys("Ravi@gmail.com");
+		 
+		 WebElement password = driver.findElement(By.id("password"));
+		 password.sendKeys("ravi@12345");
+		 
+		 WebElement cpassword = driver.findElement(By.id("confirmPassword"));
+		 cpassword.sendKeys("ravi@12345");
+		 
+		 String passwordText = password.getAttribute("value");
+		 String ConfrimPassword = cpassword.getAttribute("value");
+		 
+		 if(passwordText.isEmpty()) {
+			 System.out.println("password feild is empty");
+		 }if(ConfrimPassword.isEmpty()) {
+			 System.out.println("Confrime password feild is empty");
+		 }
+		 if(passwordText.equals(ConfrimPassword)) {
+			 System.out.println("password are equal");
+		 }else {
+			 System.out.println("password are not equal");
+		 }
+		 
+		 WebElement genderMale = driver.findElement(By.xpath("//*[@id=\"genderMale\"]"));
+		 genderMale.click();
+		 
+		 WebElement hobby = driver.findElement(By.id("hobbyTravel"));
+		 hobby.click();
+		 
+		 Select income = new Select(driver.findElement(By.id("sourceOfIncome")));
+		 income.selectByVisibleText("Self-employed");
+		 
+		 Select age = new Select(driver.findElement(By.id("age")));
+		 age.selectByVisibleText("30");
+		 
+		 WebElement biodata = driver.findElement(By.id("biodata"));
+		 biodata.sendKeys("A dedicated and enthusiastic university graduate with a background in Computer Science and industry experience");
+		 
+		 Thread.sleep(3000);
+		 
+		 driver.switchTo().newWindow(WindowType.TAB);
+         driver.get("https://www.google.com/");
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+}
+
+
 
