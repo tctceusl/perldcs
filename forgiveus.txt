@@ -511,5 +511,190 @@ Alternatively use PDU (Packet):
 
 
 
+## BGP (Border Gateway Protocol) Configuration Example
+
+---
+
+### Topology
+
+```
+PC0--[S0]--[Router0]--Serial--[Router1]--Serial--[Router2]--[S2]--PC2
+            AS 100             AS 200              AS 300
+                                  |
+                                 [S1]
+                                  |
+                                 PC1
+```
+
+| Router | LAN | AS Number | Serial Link |
+|--------|-----|-----------|-------------|
+| Router0 | 192.168.10.0/24 | AS 100 | Serial2/0 → 10.0.0.1/30 |
+| Router1 | 192.168.20.0/24 | AS 200 | Serial2/0 → 10.0.0.2/30 / Serial3/0 → 10.0.1.1/30 |
+| Router2 | 192.168.30.0/24 | AS 300 | Serial2/0 → 10.0.1.2/30 |
+
+**Devices:** Router-PT (with WIC-2T modules) + Cisco 2960 switches — same as Q2.
+
+---
+
+### PC IP Configuration
+
+| PC | IP | Subnet Mask | Gateway |
+|----|----|-------------|---------|
+| PC0 | 192.168.10.2 | 255.255.255.0 | 192.168.10.1 |
+| PC1 | 192.168.20.2 | 255.255.255.0 | 192.168.20.1 |
+| PC2 | 192.168.30.2 | 255.255.255.0 | 192.168.30.1 |
+
+---
+
+### Router Interface Configuration
+
+**Router0:**
+```
+Router(config)# hostname Router0
+Router0(config)# interface fa0/0
+Router0(config-if)# ip address 192.168.10.1 255.255.255.0
+Router0(config-if)# no shutdown
+Router0(config-if)# exit
+Router0(config)# interface serial2/0
+Router0(config-if)# ip address 10.0.0.1 255.255.255.252
+Router0(config-if)# clock rate 64000
+Router0(config-if)# no shutdown
+Router0(config-if)# exit
+```
+
+**Router1:**
+```
+Router(config)# hostname Router1
+Router1(config)# interface fa0/0
+Router1(config-if)# ip address 192.168.20.1 255.255.255.0
+Router1(config-if)# no shutdown
+Router1(config-if)# exit
+Router1(config)# interface serial2/0
+Router1(config-if)# ip address 10.0.0.2 255.255.255.252
+Router1(config-if)# no shutdown
+Router1(config-if)# exit
+Router1(config)# interface serial3/0
+Router1(config-if)# ip address 10.0.1.1 255.255.255.252
+Router1(config-if)# clock rate 64000
+Router1(config-if)# no shutdown
+Router1(config-if)# exit
+```
+
+**Router2:**
+```
+Router(config)# hostname Router2
+Router2(config)# interface fa0/0
+Router2(config-if)# ip address 192.168.30.1 255.255.255.0
+Router2(config-if)# no shutdown
+Router2(config-if)# exit
+Router2(config)# interface serial2/0
+Router2(config-if)# ip address 10.0.1.2 255.255.255.252
+Router2(config-if)# no shutdown
+Router2(config-if)# exit
+```
+
+---
+
+### BGP Configuration
+
+**How BGP works:** Each router is given an AS number. You declare your neighbors and their AS numbers, then advertise your own networks. BGP shares these across all peers.
+
+**Router0 (AS 100):**
+```
+Router0(config)# router bgp 100
+Router0(config-router)# bgp router-id 1.1.1.1
+Router0(config-router)# neighbor 10.0.0.2 remote-as 200
+Router0(config-router)# network 192.168.10.0 mask 255.255.255.0
+Router0(config-router)# exit
+Router0# write memory
+```
+
+**Router1 (AS 200):**
+```
+Router1(config)# router bgp 200
+Router1(config-router)# bgp router-id 2.2.2.2
+Router1(config-router)# neighbor 10.0.0.1 remote-as 100
+Router1(config-router)# neighbor 10.0.1.2 remote-as 300
+Router1(config-router)# network 192.168.20.0 mask 255.255.255.0
+Router1(config-router)# exit
+Router1# write memory
+```
+
+**Router2 (AS 300):**
+```
+Router2(config)# router bgp 300
+Router2(config-router)# bgp router-id 3.3.3.3
+Router2(config-router)# neighbor 10.0.1.1 remote-as 200
+Router2(config-router)# network 192.168.30.0 mask 255.255.255.0
+Router2(config-router)# exit
+Router2# write memory
+```
+
+---
+
+### Verification Commands
+
+**Check if BGP neighbors connected:**
+```
+Router0# show ip bgp summary
+```
+Look for `Established` under State. If it shows `Active` or `Idle`, wait 30–60 seconds or check that neighbor IPs are reachable.
+
+**Check BGP routing table:**
+```
+Router0# show ip bgp
+```
+Expected output:
+```
+Network          Next Hop     Path
+*> 192.168.10.0  0.0.0.0      i
+*> 192.168.20.0  10.0.0.2     200 i
+*> 192.168.30.0  10.0.0.2     200 300 i
+```
+The `Path` column shows the AS path — `200 300` means traffic goes through AS200 then AS300.
+
+**Check main routing table:**
+```
+Router0# show ip route
+```
+BGP routes appear with `B`:
+```
+B  192.168.20.0/24 [20/0] via 10.0.0.2
+B  192.168.30.0/24 [20/0] via 10.0.0.2
+```
+
+**Ping end-to-end:**
+```
+PC0> ping 192.168.30.2    ← crosses AS100 → AS200 → AS300
+```
+
+---
+
+### BGP vs RIP Quick Comparison
+
+| Feature | BGP | RIP |
+|---------|-----|-----|
+| Type | Path Vector | Distance Vector |
+| Used for | Between AS (Internet) | Small networks |
+| Max hops | Unlimited | 15 |
+| Metric | AS Path length | Hop count |
+| Admin Distance | eBGP = 20 | 120 |
+| Port | TCP 179 | UDP 520 |
+| Config command | `router bgp [AS]` | `router rip` |
+
+---
+
+### Common Mistakes
+
+**BGP stuck at "Active"** → neighbor IP not reachable. Run `ping 10.0.0.2` first. If it fails, check interface IPs and cable connections.
+
+**BGP stuck at "Idle"** → AS numbers mismatch. If Router0 says `neighbor 10.0.0.2 remote-as 200`, then Router1 must be configured as `router bgp 200`.
+
+**Routes not showing** → network command wrong. Always include the mask:
+```
+✗  network 192.168.10.0
+✓  network 192.168.10.0 mask 255.255.255.0
+```
+
 
 
